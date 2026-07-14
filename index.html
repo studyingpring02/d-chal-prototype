@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>D-CHAL — 다이어트 대결</title>
+<style>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.css');
+
+:root{
+  --bg:#FFF6EF;
+  --panel:#FFFFFF;
+  --panel2:#FFEDE0;
+  --line:#F5DED6;
+  --me:#FF8FAB;
+  --me-dim:#FFE3EC;
+  --rival:#6EC9B0;
+  --rival-dim:#E3F6F0;
+  --gold:#FFC857;
+  --text:#5B4A4D;
+  --muted:#A8969A;
+  --faint:#C9BEC0;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Pretendard', -apple-system, sans-serif;
+  background:linear-gradient(160deg, #FFE3D0, #FBEFF3);
+  color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
+  padding:24px 0;
+}
+.device{
+  width:390px;
+  height:844px;
+  background:var(--bg);
+  border-radius:44px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 10px #6B4750;
+  display:flex;
+  flex-direction:column;
+}
+.notch{
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:120px; height:28px; background:#6B4750; border-radius:0 0 18px 18px; z-index:50;
+}
+.screen{
+  flex:1; overflow-y:auto; position:relative;
+  display:none;
+  flex-direction:column;
+}
+.screen.active{display:flex;}
+.screen::-webkit-scrollbar{display:none;}
+
+/* ---- top status ---- */
+.statusbar{ height:48px; flex-shrink:0; }
+
+/* ---- nav dots to switch prototype screens ---- */
+.settle-wrap{ padding:32px 24px; display:flex; flex-direction:column; align-items:center; height:100%; }
+.settle-badge{
+  font-size:11px; font-weight:800; color:var(--muted); background:var(--panel2);
+  padding:6px 14px; border-radius:100px; margin-bottom:20px; letter-spacing:0.03em;
+}
+.settle-result{ text-align:center; margin-bottom:26px; }
+.settle-emoji{ font-size:44px; margin-bottom:10px; }
+.settle-result h2{ font-size:22px; font-weight:800; margin-bottom:8px; }
+.settle-result p{ font-size:13px; color:var(--muted); }
+.settle-result b{ color:var(--text); }
+.settle-compare{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px;
+}
+.settle-side{ flex:1; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.settle-side .nc-av{ margin:0 auto; }
+.settle-side b{ font-size:14px; }
+.settle-side span{ font-size:10.5px; color:var(--muted); }
+.settle-vs{ font-size:16px; font-weight:900; color:var(--faint); padding:0 10px; }
+.refund-card{
+  width:100%; background:linear-gradient(135deg, #E9F9EE, var(--panel)); border:1px solid rgba(74,222,128,0.35);
+  border-radius:16px; padding:18px; text-align:center; margin-bottom:14px;
+}
+.refund-top span{ font-size:12px; color:var(--muted); font-weight:600; }
+.refund-amount{ font-size:24px; font-weight:800; color:#7ED9A8; margin-top:8px; }
+.refund-amount small{ display:block; font-size:11px; color:var(--muted); font-weight:600; margin-top:4px; }
+.settle-note{
+  font-size:11.5px; color:var(--muted); line-height:1.6; text-align:center; padding:0 6px;
+}
+.settle-note b{ color:var(--text); }
+
+.forfeit-link{
+  text-align:center; margin-top:16px; font-size:12px; color:var(--faint); font-weight:600;
+  text-decoration:underline; cursor:pointer;
+}
+.forfeit-ico{ font-size:44px; }
+.forfeit-detail{
+  width:100%; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:6px 16px;
+}
+.fd-row{
+  display:flex; align-items:center; justify-content:space-between; padding:12px 0;
+  border-bottom:1px solid var(--line); font-size:12.5px;
+}
+.fd-row:last-child{ border-bottom:none; }
+.fd-row span{ color:var(--muted); font-weight:600; }
+.fd-row b{ font-weight:800; }
+.fd-row.highlight span, .fd-row.highlight b{ color:var(--gold); }
+.forfeit-actions{ width:100%; display:flex; flex-direction:column; gap:10px; }
+
+.protonav{
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  display:flex; gap:8px; z-index:999; background:rgba(255,255,255,0.75);
+  padding:8px 10px; border-radius:20px; backdrop-filter:blur(6px);
+  box-shadow:0 4px 16px rgba(107,71,80,0.15);
+}
+.protonav button{
+  width:9px;height:9px;border-radius:50%; border:none; background:#E6DAD9; cursor:pointer; padding:0;
+}
+.protonav button.on{ background:var(--gold); width:22px; border-radius:6px; }
+
+/* ============ SCREEN 1: ONBOARDING ============ */
+.start-screen{
+  height:100%; position:relative; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:space-between;
+  padding:0 0 30px;
+  background:#FFF6EF;
+}
+.split-bg{ position:absolute; inset:0; z-index:0; }
+.split-left, .split-right{
+  position:absolute; top:-10%; width:75%; height:120%;
+}
+.split-left{
+  left:-15%; background:linear-gradient(135deg, #FFD6E5 0%, #FFF6EF 55%);
+  transform:skewX(-8deg);
+}
+.split-right{
+  right:-15%; background:linear-gradient(-135deg, #D8F3EA 0%, #FFF6EF 55%);
+  transform:skewX(-8deg);
+}
+.scanlines{
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+}
+.start-content{
+  position:relative; z-index:2; padding:54px 24px 0; display:flex; flex-direction:column; align-items:center;
+}
+.start-eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:0.28em; color:var(--gold);
+  border:1px solid rgba(255,197,61,0.4); padding:6px 14px; border-radius:100px; margin-bottom:28px;
+}
+.arena{ display:flex; align-items:center; justify-content:center; gap:0; width:100%; margin-bottom:22px; }
+.fighter-tile{ position:relative; width:100px; display:flex; flex-direction:column; align-items:center; }
+.ft-glow{
+  position:absolute; top:50%; left:50%; width:110px; height:110px; border-radius:50%;
+  transform:translate(-50%,-50%); filter:blur(22px); opacity:0.55;
+}
+.fighter-tile.me .ft-glow{ background:var(--me); }
+.fighter-tile.rival .ft-glow{ background:var(--rival); }
+.ft-av{
+  position:relative; width:76px; height:76px; border-radius:24px; display:flex; align-items:center; justify-content:center;
+  font-size:30px; font-weight:800; z-index:2;
+}
+.fighter-tile.me .ft-av{ background:linear-gradient(160deg, #FFB6C9, var(--me)); box-shadow:0 8px 24px rgba(255,143,171,0.4); }
+.fighter-tile.rival .ft-av{ background:linear-gradient(160deg, #A8E6D4, var(--rival)); box-shadow:0 8px 24px rgba(110,201,176,0.4); }
+.ft-tag{ margin-top:10px; font-size:10.5px; font-weight:800; letter-spacing:0.12em; color:var(--muted); z-index:2; }
+.arena-center{ display:flex; flex-direction:column; align-items:center; gap:2px; width:70px; }
+.vs-mark{ font-size:24px; font-weight:900; font-style:italic; color:var(--text); letter-spacing:-0.02em; text-shadow:0 0 20px rgba(255,255,255,0.25); }
+.bolt{ font-size:16px; }
+.start-logo{
+  font-size:54px; font-weight:900; letter-spacing:-0.02em; line-height:1; margin-bottom:14px;
+  background:linear-gradient(180deg, #FF8FAB 0%, #E85585 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  text-shadow:0 0 40px rgba(255,143,171,0.15);
+}
+.start-tagline{ font-size:19px; font-weight:700; line-height:1.45; text-align:center; color:var(--muted); }
+.start-tagline span{ color:var(--text); font-weight:800; }
+.start-features{
+  display:flex; flex-direction:column; gap:9px; margin-top:26px; width:100%;
+}
+.sf-item{
+  display:flex; align-items:center; gap:10px; font-size:12.5px; font-weight:600; color:var(--muted);
+  background:rgba(255,255,255,0.035); border:1px solid var(--line); border-radius:12px; padding:10px 14px;
+}
+.sf-item span{ font-size:15px; }
+.start-bottom{ position:relative; z-index:2; padding:20px 24px 0; display:flex; flex-direction:column; }
+.btn-fight{
+  width:100%; padding:18px; border-radius:16px; border:none; cursor:pointer;
+  background:linear-gradient(135deg, var(--me), #E85585);
+  color:white; font-size:16.5px; font-weight:800; letter-spacing:-0.01em;
+  box-shadow:0 10px 30px rgba(255,143,171,0.35);
+}
+.btn-fight:active{ transform:scale(0.98); }
+
+.ob-hero{
+  padding:36px 24px 20px;
+}
+.eyebrow{
+  font-size:11px; letter-spacing:0.18em; color:var(--gold); font-weight:700; margin-bottom:10px;
+}
+.ob-title{
+  font-size:34px; font-weight:800; line-height:1.15; letter-spacing:-0.02em;
+}
+.ob-title span{color:var(--me);}
+.ob-sub{
+  margin-top:10px; color:var(--muted); font-size:14px; line-height:1.6;
+}
+.ob-body{ padding:4px 24px 24px; display:flex; flex-direction:column; gap:22px; }
+.field-group{ display:flex; flex-direction:column; gap:10px; }
+.field-label{ font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;}
+.field-label .tag{font-size:10px; background:var(--panel2); color:var(--muted); padding:3px 7px; border-radius:6px; font-weight:600;}
+.time-row{ display:flex; gap:10px; }
+.time-card{
+  flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:14px; display:flex; flex-direction:column; gap:8px; cursor:pointer;
+}
+.time-card .lbl{font-size:12px; color:var(--muted); font-weight:600;}
+.time-card .val{font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;}
+.time-card.exercise .val{color:var(--me);}
+.time-card.meal .val{color:#7ED9A8;}
+.stat-row{display:flex; gap:10px;}
+.stat-input{
+  flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px;
+}
+.stat-input .lbl{font-size:12px; color:var(--muted); font-weight:600; margin-bottom:6px;}
+.stat-input .num{font-size:22px; font-weight:800; display:flex; align-items:baseline; gap:2px;}
+.stat-input .num small{font-size:12px; color:var(--muted); font-weight:600; margin-left:2px;}
+.stat-field{
+  width:52px; font-family:'Pretendard', sans-serif; font-size:22px; font-weight:800; color:var(--text);
+  background:transparent; border:none; padding:0;
+}
+.stat-field:focus{ outline:none; }
+.stat-field::-webkit-inner-spin-button, .stat-field::-webkit-outer-spin-button{ opacity:0.4; }
+.goal-row{ display:flex; gap:8px; margin-top:2px; }
+.goal-opt{
+  flex:1; text-align:center; padding:11px 0; border-radius:12px; border:1.5px solid var(--line);
+  background:var(--panel); font-size:13px; font-weight:700; color:var(--muted); cursor:pointer;
+}
+.goal-opt.selected{ border-color:var(--me); color:var(--me); background:var(--me-dim); }
+.meal-count-row{ display:flex; gap:8px; }
+.meal-count-opt{
+  flex:1; text-align:center; padding:12px 0; border-radius:12px; border:1.5px solid var(--line);
+  background:var(--panel); font-size:14px; font-weight:700; color:var(--muted); cursor:pointer;
+}
+.meal-count-opt.selected{ border-color:var(--gold); color:var(--gold); background:var(--panel2); }
+.slot-list{ display:flex; flex-direction:column; gap:8px; }
+.slot-row{
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 16px; cursor:pointer;
+}
+.slot-name{ font-size:13px; font-weight:700; color:var(--muted); }
+.field-hint{ font-size:11px; color:var(--faint); margin-top:-4px; margin-bottom:2px; }
+.slot-time{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; }
+.slot-time-input{
+  font-family:'Pretendard', sans-serif; font-size:15px; font-weight:800; font-variant-numeric:tabular-nums;
+  background:transparent; border:none; color:var(--gold); color-scheme:dark; cursor:pointer;
+}
+.slot-time-input:focus{ outline:none; }
+.strict-box{
+  background:linear-gradient(135deg, var(--me-dim), var(--panel));
+  border:1px solid rgba(255,143,171,0.35); border-radius:16px; padding:16px 18px;
+  display:flex; gap:12px; align-items:flex-start;
+}
+.strict-box .ico{font-size:22px;}
+.strict-box .txt b{display:block; font-size:14px; margin-bottom:4px;}
+.strict-box .txt p{font-size:12.5px; color:var(--muted); line-height:1.55;}
+.cta-fixed{
+  padding:16px 24px 28px; background:linear-gradient(180deg, transparent, var(--bg) 30%);
+  position:sticky; bottom:0;
+}
+.btn-primary{
+  width:100%; padding:17px; border-radius:16px; border:none;
+  background:var(--me); color:white; font-size:16px; font-weight:800; letter-spacing:-0.01em;
+  cursor:pointer;
+}
+.btn-primary:active{transform:scale(0.98);}
+.btn-ghost{
+  width:100%; padding:15px; border-radius:16px; border:1px solid var(--line); margin-top:10px;
+  background:transparent; color:var(--muted); font-size:14px; font-weight:700; cursor:pointer;
+}
+
+/* ============ SCREEN 2: MATCHING ============ */
+.mode-tabs{ display:flex; gap:8px; margin-bottom:18px; }
+.mode-tab{
+  flex:1; text-align:center; padding:12px 10px; border-radius:14px; border:1.5px solid var(--line);
+  background:var(--panel); cursor:pointer; display:flex; flex-direction:column; gap:3px;
+}
+.mode-tab.active{ border-color:var(--gold); background:var(--panel2); }
+.mt-title{ font-size:13.5px; font-weight:800; }
+.mt-sub{ font-size:10.5px; color:var(--muted); font-weight:600; }
+.mode-tab.active .mt-sub{ color:var(--gold); }
+
+.match-wrap{ padding:28px 24px; display:flex; flex-direction:column; height:100%; }
+.match-head{ text-align:center; margin-bottom:22px; }
+.match-head h2{font-size:22px; font-weight:800;}
+.match-head p{font-size:13px; color:var(--muted); margin-top:6px;}
+.match-options{ display:flex; flex-direction:column; gap:12px; margin-bottom:22px; }
+.match-opt{
+  border:1.5px solid var(--line); background:var(--panel); border-radius:18px; padding:18px;
+  display:flex; align-items:center; gap:14px; cursor:pointer; transition:border-color .15s;
+}
+.match-opt.selected{ border-color:var(--gold); background:var(--panel2); }
+.match-opt .icon-badge{
+  width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.match-opt.ai .icon-badge{ background:rgba(110,201,176,0.15); }
+.match-opt.user .icon-badge{ background:rgba(255,143,171,0.15); }
+.match-opt .info b{ font-size:15px; display:block; margin-bottom:3px; }
+.match-opt .info p{ font-size:12px; color:var(--muted); line-height:1.5; }
+.match-opt .check{
+  margin-left:auto; width:20px;height:20px;border-radius:50%; border:2px solid var(--faint); flex-shrink:0;
+}
+.match-opt.selected .check{ border-color:var(--gold); background:var(--gold); }
+
+.finding{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+}
+.radar{
+  width:150px; height:150px; border-radius:50%; position:relative;
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.radar::before, .radar::after{
+  content:''; position:absolute; border-radius:50%; border:1px solid var(--line);
+}
+.radar::before{ width:100px; height:100px; }
+.radar::after{ width:55px; height:55px; }
+.radar .pulse{
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  border:2px solid var(--gold); opacity:0; animation:pulse 1.8s ease-out infinite;
+}
+@keyframes pulse{ 0%{transform:scale(0.3); opacity:0.9;} 100%{transform:scale(1); opacity:0;} }
+.radar .core{ font-size:30px; }
+.finding-txt{ text-align:center; }
+.finding-txt b{ font-size:15px; display:block; margin-bottom:4px;}
+.finding-txt p{ font-size:12.5px; color:var(--muted); }
+
+.wager-card{
+  margin-top:auto;
+  background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.wager-card .l{font-size:13px; color:var(--muted); font-weight:600;}
+.wager-card .r{font-size:19px; font-weight:800; color:var(--gold);}
+
+/* ============ SCREEN 3: FORCED LOCK / CAMERA ============ */
+.lock-screen{
+  background:radial-gradient(circle at 50% 20%, #FFE3EC 0%, #FFF6EF 60%);
+  height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  padding:60px 24px 40px; position:relative;
+}
+.lock-time{ text-align:center; }
+.lock-time .clock{ font-size:56px; font-weight:800; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;}
+.lock-time .date{ font-size:13px; color:var(--muted); margin-top:4px; }
+.siren-badge{
+  margin-top:22px; display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,143,171,0.15); border:1px solid rgba(255,143,171,0.4);
+  padding:8px 16px; border-radius:100px; animation:blink 1.2s infinite;
+}
+@keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+.siren-badge span{ font-size:12px; font-weight:800; color:var(--me); letter-spacing:0.02em; }
+.lock-mid{ text-align:center; }
+.lock-mid h2{ font-size:20px; font-weight:800; margin-bottom:8px; line-height:1.4; }
+.lock-mid p{ font-size:13px; color:var(--muted); line-height:1.6; }
+.vs-mini{
+  display:flex; align-items:center; justify-content:center; gap:14px; margin-top:20px;
+}
+.vs-mini .side{ text-align:center; }
+.vs-mini .av{ width:44px; height:44px; border-radius:50%; margin:0 auto 6px; }
+.vs-mini .side.me .av{ background:var(--me); }
+.vs-mini .side.rival .av{ background:var(--rival); }
+.vs-mini .side p{ font-size:11px; color:var(--muted); font-weight:700; }
+.vs-mini .vslabel{ font-size:11px; color:var(--faint); font-weight:800; }
+.shutter-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.shutter{
+  width:84px; height:84px; border-radius:50%; background:#FFFFFF; border:6px solid var(--panel2);
+  cursor:pointer; position:relative; box-shadow:0 0 0 3px var(--me), 0 6px 16px rgba(255,143,171,0.4);
+}
+.shutter:active{ transform:scale(0.94); }
+.shutter-note{ font-size:12px; color:var(--muted); font-weight:600; }
+.shutter-note b{ color:var(--me); }
+
+.skip-link{
+  font-size:12.5px; color:var(--muted); font-weight:600; text-decoration:underline; cursor:pointer; margin-top:2px;
+}
+.pass-icon{ font-size:40px; }
+.pass-options{ display:flex; flex-direction:column; gap:12px; width:100%; }
+.pass-opt{
+  display:flex; align-items:center; gap:14px; background:var(--panel); border:1.5px solid var(--line);
+  border-radius:16px; padding:16px; cursor:pointer;
+}
+.pass-opt.selected{ border-color:var(--rival); background:var(--rival-dim); }
+.pass-ico{ font-size:22px; width:40px; height:40px; border-radius:12px; background:var(--panel2);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pass-txt b{ font-size:14px; display:block; margin-bottom:2px; }
+.pass-txt p{ font-size:11.5px; color:var(--muted); }
+
+.notify-wrap{ padding:32px 24px; display:flex; flex-direction:column; align-items:center; height:100%; }
+.notify-badge{
+  font-size:11px; font-weight:800; color:var(--muted); background:var(--panel2);
+  padding:6px 14px; border-radius:100px; margin-bottom:26px; letter-spacing:0.03em;
+}
+.notify-card{
+  width:100%; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px;
+}
+.notify-card.mine{ border-color:rgba(255,143,171,0.35); }
+.nc-top{ display:flex; align-items:center; gap:12px; }
+.nc-av{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; }
+.nc-av.me-av{ background:linear-gradient(160deg, var(--me), #E85585); }
+.nc-av.rival-av{ background:linear-gradient(160deg, var(--rival), #3C9C82); font-size:18px; }
+.nc-info{ flex:1; }
+.nc-info b{ font-size:14px; display:block; }
+.nc-info span{ font-size:11.5px; color:var(--muted); }
+.nc-result{ font-size:13px; font-weight:800; padding:6px 12px; border-radius:100px; }
+.nc-result.done{ background:rgba(74,222,128,0.15); color:#7ED9A8; }
+.nc-result.fail{ background:rgba(255,143,171,0.15); color:var(--me); }
+.notify-vs{ font-size:15px; font-weight:900; color:var(--faint); font-style:italic; margin:14px 0; }
+.notify-msg{ margin-top:22px; text-align:center; }
+.notify-msg p{ font-size:12.5px; color:var(--muted); line-height:1.7; }
+.notify-msg b{ color:var(--text); }
+
+/* ============ SCREEN 4: BATTLE DASHBOARD ============ */
+.dash{ padding:20px 20px 24px; }
+.dash-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.dash-top h2{ font-size:20px; font-weight:800; }
+.day-pill{
+  background:var(--panel2); color:var(--gold); font-size:12px; font-weight:800;
+  padding:6px 12px; border-radius:100px;
+}
+.level-card{
+  background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:18px; margin-bottom:16px;
+}
+.level-top{ display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.level-char-wrap{
+  width:56px; height:56px; border-radius:18px; flex-shrink:0;
+  background:linear-gradient(160deg, var(--me-dim), var(--panel2));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(255,143,171,0.25);
+}
+.level-char{ font-size:28px; }
+.level-info{ flex:1; }
+.level-name{ font-size:14px; font-weight:800; margin-bottom:3px; }
+.level-sub{ font-size:11.5px; color:var(--muted); }
+.level-sub b{ color:var(--me); }
+.level-track{ height:10px; background:var(--panel2); border-radius:100px; overflow:hidden; margin-bottom:10px; }
+.level-fill{ height:100%; background:linear-gradient(90deg, var(--me), var(--gold)); border-radius:100px; }
+.level-pips{ display:flex; justify-content:space-between; margin-bottom:10px; }
+.pip{
+  width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; background:var(--panel2); color:var(--faint); border:1.5px solid var(--line);
+}
+.pip.done{ background:var(--me-dim); color:var(--me); border-color:var(--me); }
+.pip.current{ background:var(--me); color:#fff; border-color:var(--me); box-shadow:0 0 0 4px var(--me-dim); }
+.level-note{ font-size:11px; color:var(--faint); text-align:center; }
+.level-note b{ color:var(--text); }
+
+.vs-card{
+  background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:20px; margin-bottom:16px;
+}
+.vs-top{ display:flex; align-items:center; justify-content:space-between; }
+.fighter{ text-align:center; width:88px; }
+.fighter .av{
+  width:64px; height:64px; border-radius:20px; margin:0 auto 8px;
+  display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:800;
+}
+.fighter.me .av{ background:linear-gradient(160deg, var(--me), #E85585); }
+.fighter.rival .av{ background:linear-gradient(160deg, var(--rival), #3C9C82); }
+.fighter b{ font-size:13px; display:block; }
+.fighter span{ font-size:11px; color:var(--muted); }
+.vs-center{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.vs-center .vs{ font-size:20px; font-weight:900; color:var(--faint); font-style:italic; }
+.vs-center .timer{ font-size:10px; color:var(--muted); font-weight:700; background:var(--panel2); padding:3px 8px; border-radius:8px; }
+
+.hp-section{ margin-top:18px; display:flex; flex-direction:column; gap:10px; }
+.hp-row{ display:flex; align-items:center; gap:10px; }
+.hp-row .who{ width:36px; font-size:11px; font-weight:800; color:var(--muted); }
+.hp-track{ flex:1; height:12px; background:var(--panel2); border-radius:100px; overflow:hidden; position:relative; }
+.hp-fill{ height:100%; border-radius:100px; }
+.hp-fill.me{ background:linear-gradient(90deg, #FFB6C9, var(--me)); }
+.hp-fill.rival{ background:linear-gradient(90deg, #A8E6D4, var(--rival)); }
+.hp-row .cnt{ width:38px; text-align:right; font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
+
+.stakes-row{
+  margin-top:16px; display:flex; align-items:center; justify-content:space-between;
+  background:var(--panel2); border-radius:12px; padding:12px 14px;
+}
+.stakes-row .l{ font-size:12px; color:var(--muted); font-weight:600; }
+.stakes-row .r{ font-size:15px; font-weight:800; color:var(--gold); }
+
+.section-title{ font-size:14px; font-weight:800; margin:22px 0 10px; display:flex; align-items:center; gap:6px;}
+.week-grid{ display:flex; gap:6px; margin-bottom:6px; }
+.week-day{
+  flex:1; aspect-ratio:1; border-radius:10px; background:var(--panel);
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--faint);
+  border:1px solid var(--line); position:relative;
+}
+.week-day.done{ background:rgba(255,143,171,0.18); border-color:var(--me); color:var(--me); }
+.week-day.miss{ background:transparent; border-color:var(--line); color:var(--faint); text-decoration:line-through; }
+.week-day.today{ border-color:var(--gold); color:var(--gold); }
+.safety-note{
+  margin-top:10px; font-size:11.5px; color:var(--muted); line-height:1.6; background:var(--panel);
+  border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+}
+.safety-note b{ color:var(--text); }
+
+.score-grid{ display:flex; gap:10px; }
+.score-card{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+.score-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.score-top span{ font-size:12px; color:var(--muted); font-weight:600; }
+.score-top b{ font-size:15px; font-weight:800; }
+.score-top b.sc-meal{ color:#7ED9A8; }
+.score-top b.sc-ex{ color:var(--me); }
+.score-bar{ height:7px; background:var(--panel2); border-radius:100px; overflow:hidden; margin-bottom:8px; }
+.score-fill{ height:100%; border-radius:100px; }
+.score-fill.meal{ background:#7ED9A8; }
+.score-fill.ex{ background:var(--me); }
+.score-note{ font-size:10.5px; color:var(--faint); }
+
+.kcal-card{
+  margin-top:12px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+}
+.kcal-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.kcal-top span{ font-size:12px; color:var(--muted); font-weight:600; }
+.kcal-top b{ font-size:15px; font-weight:800; }
+.kcal-top b small{ font-size:11px; color:var(--muted); font-weight:600; }
+.kcal-track{ height:8px; background:var(--panel2); border-radius:100px; overflow:hidden; }
+.kcal-fill{ height:100%; background:linear-gradient(90deg, var(--gold), #FFB86B); border-radius:100px; }
+
+.predict-card{
+  margin-top:12px; display:flex; gap:12px; align-items:flex-start;
+  background:linear-gradient(135deg, #EAF7F3, var(--panel)); border:1px solid rgba(110,201,176,0.3);
+  border-radius:14px; padding:14px 16px;
+}
+.predict-ico{ font-size:20px; }
+.predict-txt b{ font-size:13px; display:block; margin-bottom:4px; }
+.predict-txt p{ font-size:11.5px; color:var(--muted); line-height:1.6; }
+.predict-num{ color:var(--rival); font-weight:800; }
+
+.bottomnav{
+  position:sticky; bottom:0; left:0; right:0; height:74px; background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-around; padding-bottom:14px;
+  flex-shrink:0; margin-top:auto;
+}
+.navitem{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.navitem .dot{ width:22px; height:22px; }
+.navitem span{ font-size:10px; color:var(--faint); font-weight:700; }
+.navitem.on span{ color:var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="notch"></div>
+
+  <!-- ============ SCREEN 1 : ONBOARDING ============ -->
+  <!-- ============ SCREEN 0 : START PAGE ============ -->
+  <div class="screen active" id="s0">
+    <div class="start-screen">
+      <div class="split-bg">
+        <div class="split-left"></div>
+        <div class="split-right"></div>
+      </div>
+      <div class="scanlines"></div>
+
+      <div class="start-content">
+        <div class="start-eyebrow">D-CHAL · 1:1 DIET BATTLE</div>
+
+        <div class="arena">
+          <div class="fighter-tile me">
+            <div class="ft-glow"></div>
+            <div class="ft-av">소</div>
+            <div class="ft-tag">YOU</div>
+          </div>
+
+          <div class="arena-center">
+            <div class="vs-mark">VS</div>
+            <div class="bolt">⚡</div>
+          </div>
+
+          <div class="fighter-tile rival">
+            <div class="ft-glow"></div>
+            <div class="ft-av">🤖</div>
+            <div class="ft-tag">RIVAL</div>
+          </div>
+        </div>
+
+        <h1 class="start-logo">D-CHAL</h1>
+        <p class="start-tagline">혼자 하는 다이어트는<br><span>오늘부로 끝.</span></p>
+
+        <div class="start-features">
+          <div class="sf-item"><span>🔒</span>못 넘기는 강제 인증</div>
+          <div class="sf-item"><span>💰</span>벌금 걸고 진짜 승부</div>
+          <div class="sf-item"><span>🥊</span>나와 비슷한 상대 매칭</div>
+        </div>
+      </div>
+
+      <div class="start-bottom">
+        <button class="btn-fight" onclick="go('s1')">대결 시작하기</button>
+        <button class="btn-ghost" onclick="go('s4')">이미 대결 중이에요</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="s1">
+    <div class="statusbar"></div>
+    <div class="ob-hero">
+      <div class="eyebrow">D-CHAL SETUP</div>
+      <div class="ob-title">오늘부터<br><span>도망칠 수 없는</span> 대결.</div>
+      <div class="ob-sub">정해진 시간, 정해진 인증. 안 찍으면 알람은 안 꺼져요.</div>
+    </div>
+
+    <div class="ob-body">
+      <div class="field-group">
+        <div class="field-label">하루 몇 끼 인증할까요? <span class="tag">필수</span></div>
+        <div class="meal-count-row">
+          <div class="meal-count-opt" data-meals="2">2끼</div>
+          <div class="meal-count-opt selected" data-meals="3">3끼</div>
+          <div class="meal-count-opt" data-meals="4">4끼</div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">🍚 끼니별 인증 시간 <span class="tag">직접 설정</span></div>
+        <p class="field-hint">시간을 탭해서 나에게 맞는 시간으로 바꿔보세요</p>
+
+        <div class="slot-list meal-slots" data-count="2" style="display:none;">
+          <div class="slot-row"><span class="slot-name">아침</span><input type="time" class="slot-time-input" value="09:00"></div>
+          <div class="slot-row"><span class="slot-name">저녁</span><input type="time" class="slot-time-input" value="19:00"></div>
+        </div>
+
+        <div class="slot-list meal-slots" data-count="3">
+          <div class="slot-row"><span class="slot-name">아침</span><input type="time" class="slot-time-input" value="08:00"></div>
+          <div class="slot-row"><span class="slot-name">점심</span><input type="time" class="slot-time-input" value="13:00"></div>
+          <div class="slot-row"><span class="slot-name">저녁</span><input type="time" class="slot-time-input" value="19:30"></div>
+        </div>
+
+        <div class="slot-list meal-slots" data-count="4" style="display:none;">
+          <div class="slot-row"><span class="slot-name">아침</span><input type="time" class="slot-time-input" value="07:30"></div>
+          <div class="slot-row"><span class="slot-name">점심</span><input type="time" class="slot-time-input" value="12:30"></div>
+          <div class="slot-row"><span class="slot-name">저녁</span><input type="time" class="slot-time-input" value="18:30"></div>
+          <div class="slot-row"><span class="slot-name">간식</span><input type="time" class="slot-time-input" value="21:00"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">🏋️ 운동 인증 시간 <span class="tag">필수</span></div>
+        <div class="slot-list">
+          <div class="slot-row"><span class="slot-name">운동</span><input type="time" class="slot-time-input" value="07:00"></div>
+        </div>
+      </div>
+
+      <div class="strict-box" style="background:linear-gradient(135deg, #EAF7F3, var(--panel)); border-color:rgba(110,201,176,0.35);">
+        <div class="ico">✋</div>
+        <div class="txt">
+          <b>도저히 못 할 땐 '패스' 인증</b>
+          <p>아무 사진이나 찍으면 "운동을 안 하셨나요? / 식사를 못 하셨나요?"로 확인해요. 결식·결운동으로 기록되고, 상대에게는 그 결과만 알려져요.</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">매칭용 신체 정보 <span class="tag">직접 설정</span></div>
+        <div class="stat-row">
+          <div class="stat-input">
+            <div class="lbl">키</div>
+            <div class="num"><input type="number" class="stat-field" value="165" inputmode="numeric"><small>cm</small></div>
+          </div>
+          <div class="stat-input">
+            <div class="lbl">체중</div>
+            <div class="num"><input type="number" class="stat-field" value="58" inputmode="numeric"><small>kg</small></div>
+          </div>
+        </div>
+        <div class="goal-row">
+          <div class="goal-opt">증량</div>
+          <div class="goal-opt selected">감량</div>
+          <div class="goal-opt">유지</div>
+        </div>
+      </div>
+
+      <div class="strict-box">
+        <div class="ico">🔒</div>
+        <div class="txt">
+          <b>강제 모드가 켜집니다</b>
+          <p>설정한 시간이 되면 화면이 잠기고, 사진을 찍기 전까지 알람이 계속 울려요. 앱을 지우면 이번 주 걸린 금액은 바로 몰수돼요.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-fixed">
+      <button class="btn-primary" onclick="go('s2')">대결 상대 찾기 →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 : MATCHING ============ -->
+  <div class="screen" id="s2">
+    <div class="statusbar"></div>
+    <div class="match-wrap">
+      <div class="match-head">
+        <h2>누구랑 붙을까요?</h2>
+        <p>같은 키·체중대, 같은 목표를 가진 상대와 1:1로 매칭돼요</p>
+      </div>
+
+      <div class="mode-tabs">
+        <div class="mode-tab" onclick="setMode('free', this)">
+          <span class="mt-title">무료 대결</span>
+          <span class="mt-sub">벌금 없이 연습</span>
+        </div>
+        <div class="mode-tab active" onclick="setMode('paid', this)">
+          <span class="mt-title">💰 유료 대결</span>
+          <span class="mt-sub">벌금 걸고 진짜 승부</span>
+        </div>
+      </div>
+
+      <div class="match-options">
+        <div class="match-opt ai selected" onclick="selectOpt(this)">
+          <div class="icon-badge">🤖</div>
+          <div class="info">
+            <b>AI 라이벌</b>
+            <p>매일 랜덤한 페이스로 도발하는 AI와 대결. 상대 이탈 걱정 없이 바로 시작</p>
+          </div>
+          <div class="check"></div>
+        </div>
+        <div class="match-opt user" onclick="selectOpt(this)">
+          <div class="icon-badge">🙋</div>
+          <div class="info">
+            <b>실제 유저</b>
+            <p>키 163~167cm · 감량 목표 유저 매칭. 상대도 나만큼 절실한 사람</p>
+          </div>
+          <div class="check"></div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="radar">
+          <div class="pulse"></div>
+          <div class="core" id="matchCore">🤖</div>
+        </div>
+        <div class="finding-txt">
+          <b id="matchTitle">AI 라이벌 '류진' 배정 완료</b>
+          <p id="matchDesc">기초 페이스: 주 5일 인증 · 지금 바로 시작할 수 있어요</p>
+        </div>
+      </div>
+
+      <div class="wager-card mode-paid">
+        <div class="l">이번 주 벌금</div>
+        <div class="r">10,000원</div>
+      </div>
+      <div class="wager-card mode-free" style="display:none;">
+        <div class="l">이번 주 벌금</div>
+        <div class="r" style="color:#7ED9A8;">0원 · 연습 모드</div>
+      </div>
+
+      <div class="cta-fixed" style="padding-left:0; padding-right:0;">
+        <button class="btn-primary" onclick="go('s4')">대결 시작하기</button>
+        <button class="btn-ghost" onclick="go('s3')">강제 알람 미리보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3 : FORCED LOCK ============ -->
+  <div class="screen" id="s3">
+    <div class="lock-screen">
+      <div class="lock-time">
+        <div class="clock">07:00</div>
+        <div class="date">월요일 · 운동 인증 시간</div>
+        <div class="siren-badge"><span>🔔 사진 찍기 전까진 안 꺼져요</span></div>
+      </div>
+
+      <div class="lock-mid">
+        <h2>지금 안 찍으면<br>류진에게 1승을 내줘요</h2>
+        <p>스쾃 5개든 물 한잔이든, 지금 하고 있는<br>걸 찍기만 하면 바로 꺼져요</p>
+        <div class="vs-mini">
+          <div class="side me"><div class="av"></div><p>나 · 4연승</p></div>
+          <div class="vslabel">VS</div>
+          <div class="side rival"><div class="av"></div><p>류진 · 3연승</p></div>
+        </div>
+      </div>
+
+      <div class="shutter-wrap">
+        <div class="shutter" onclick="go('s4')"></div>
+        <div class="shutter-note">사진 촬영 시 <b>즉시 알람 종료</b></div>
+        <div class="skip-link" onclick="go('s3b')">오늘은 도저히 못 하겠어요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3b : PASS CONFIRM ============ -->
+  <div class="screen" id="s3b">
+    <div class="lock-screen" style="background:radial-gradient(circle at 50% 20%, #FFF1E6 0%, #FFF6EF 60%);">
+      <div class="lock-time">
+        <div class="pass-icon">📸</div>
+        <div class="date" style="margin-top:14px;">사진은 확인했어요. 근데—</div>
+      </div>
+
+      <div class="lock-mid">
+        <h2>운동복도, 밥그릇도<br>안 보이는데요?</h2>
+        <p>솔직하게 체크해주세요. 상대에게는<br>이 결과만 그대로 전달돼요</p>
+      </div>
+
+      <div class="pass-options">
+        <div class="pass-opt" onclick="selectPass(this,'exercise')">
+          <div class="pass-ico">🏋️</div>
+          <div class="pass-txt">
+            <b>운동을 못 했어요</b>
+            <p>오늘 운동 기록은 결번으로 처리돼요</p>
+          </div>
+        </div>
+        <div class="pass-opt" onclick="selectPass(this,'meal')">
+          <div class="pass-ico">🍚</div>
+          <div class="pass-txt">
+            <b>식사를 못 했어요</b>
+            <p>이번 끼니는 결식으로 처리돼요</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="shutter-wrap">
+        <button class="btn-primary" style="background:var(--rival);" onclick="go('s3c')">결과 전송하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3c : OPPONENT NOTIFY ============ -->
+  <div class="screen" id="s3c">
+    <div class="statusbar"></div>
+    <div class="notify-wrap">
+      <div class="notify-badge">오늘 07:00 라운드 결과</div>
+
+      <div class="notify-card mine">
+        <div class="nc-top">
+          <div class="nc-av me-av">소</div>
+          <div class="nc-info">
+            <b>나</b>
+            <span>운동 인증</span>
+          </div>
+          <div class="nc-result fail">결번 ✕</div>
+        </div>
+      </div>
+
+      <div class="notify-vs">VS</div>
+
+      <div class="notify-card">
+        <div class="nc-top">
+          <div class="nc-av rival-av">🤖</div>
+          <div class="nc-info">
+            <b>류진</b>
+            <span>운동 인증</span>
+          </div>
+          <div class="nc-result done">완료 ✓</div>
+        </div>
+      </div>
+
+      <div class="notify-msg">
+        <p>류진에게는 <b>"오늘 운동 완료"</b>만 전달돼요.<br>내가 왜 못 했는지는 공개되지 않아요.</p>
+      </div>
+
+      <div class="cta-fixed" style="padding-left:0; padding-right:0;">
+        <button class="btn-primary" onclick="go('s4')">대결 현황 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4 : BATTLE DASHBOARD ============ -->
+  <div class="screen" id="s4">
+    <div class="statusbar"></div>
+    <div class="dash">
+      <div class="dash-top">
+        <h2>오늘의 대결</h2>
+        <div class="day-pill">DAY 12</div>
+      </div>
+
+      <div class="level-card">
+        <div class="level-top">
+          <div class="level-char-wrap">
+            <div class="level-char lv3">🙂</div>
+          </div>
+          <div class="level-info">
+            <div class="level-name">Lv.3 캐릭터</div>
+            <div class="level-sub">이번 레벨에서 <b>6승</b> 달성 · 다음 레벨까지 <b>4승</b></div>
+          </div>
+        </div>
+        <div class="level-track">
+          <div class="level-fill" style="width:60%"></div>
+        </div>
+        <div class="level-pips">
+          <div class="pip done">0</div>
+          <div class="pip done">1</div>
+          <div class="pip done">2</div>
+          <div class="pip current">3</div>
+          <div class="pip">4</div>
+          <div class="pip">5</div>
+          <div class="pip">6</div>
+        </div>
+        <p class="level-note">레벨마다 <b>10승</b>을 채우면 캐릭터가 한 단계 진화해요</p>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-top">
+          <div class="fighter me">
+            <div class="av">소</div>
+            <b>나</b>
+            <span>Lv.3 도전자</span>
+          </div>
+          <div class="vs-center">
+            <div class="vs">VS</div>
+            <div class="timer">21:34:02 남음</div>
+          </div>
+          <div class="fighter rival">
+            <div class="av">🤖</div>
+            <b>류진</b>
+            <span>Lv.3 AI 라이벌</span>
+          </div>
+        </div>
+
+        <div class="hp-section">
+          <div class="hp-row">
+            <div class="who">나</div>
+            <div class="hp-track"><div class="hp-fill me" style="width:71%"></div></div>
+            <div class="cnt">5/7</div>
+          </div>
+          <div class="hp-row">
+            <div class="who">류진</div>
+            <div class="hp-track"><div class="hp-fill rival" style="width:57%"></div></div>
+            <div class="cnt">4/7</div>
+          </div>
+        </div>
+
+        <div class="stakes-row mode-paid">
+          <div class="l">이번 주 걸린 금액 · 승자 독식</div>
+          <div class="r">20,000원</div>
+        </div>
+        <div class="stakes-row mode-free" style="display:none; background:rgba(74,222,128,0.1);">
+          <div class="l">무료 대결 중</div>
+          <div class="r" style="color:#7ED9A8;">벌금 없음 · 기록만 경쟁</div>
+        </div>
+      </div>
+
+      <div class="section-title">📊 오늘의 기록</div>
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="score-top"><span>🍚 식단 점수</span><b class="sc-meal">82점</b></div>
+          <div class="score-bar"><div class="score-fill meal" style="width:82%"></div></div>
+          <p class="score-note">단백질 충분 · 야식 없음</p>
+        </div>
+        <div class="score-card">
+          <div class="score-top"><span>🏋️ 운동 점수</span><b class="sc-ex">74점</b></div>
+          <div class="score-bar"><div class="score-fill ex" style="width:74%"></div></div>
+          <p class="score-note">유산소 25분 인식됨</p>
+        </div>
+      </div>
+
+      <div class="kcal-card">
+        <div class="kcal-top">
+          <span>오늘 섭취 칼로리 (AI 추정)</span>
+          <b>1,420 <small>/ 1,650 kcal</small></b>
+        </div>
+        <div class="kcal-track"><div class="kcal-fill" style="width:86%"></div></div>
+      </div>
+
+      <div class="predict-card">
+        <div class="predict-ico">📈</div>
+        <div class="predict-txt">
+          <b>지금 페이스로 7일 유지하면</b>
+          <p>주간 평균 대비 약 <span class="predict-num">-0.3kg</span> 변화 예상 · 활동량·개인차에 따라 달라질 수 있어요</p>
+        </div>
+      </div>
+
+      <div class="section-title">📅 이번 주 인증 현황</div>
+      <div class="week-grid">
+        <div class="week-day done">월</div>
+        <div class="week-day done">화</div>
+        <div class="week-day miss">수</div>
+        <div class="week-day done">목</div>
+        <div class="week-day done">금</div>
+        <div class="week-day today">토</div>
+        <div class="week-day">일</div>
+      </div>
+      <div class="safety-note">
+        <b>하루 놓쳐도 안 끝나요.</b> 주 5일만 채우면 이번 주는 '성공' 처리돼요. 완벽할 필요 없이, 완전히 포기만 안 하면 돼요.
+      </div>
+
+      <div class="forfeit-link" onclick="go('s6')">이 대결 포기하기</div>
+    </div>
+
+    <div class="bottomnav">
+      <div class="navitem on"><div class="dot">⚔️</div><span>대결</span></div>
+      <div class="navitem"><div class="dot">📷</div><span>인증</span></div>
+      <div class="navitem"><div class="dot">🏆</div><span>랭킹</span></div>
+      <div class="navitem"><div class="dot">👤</div><span>MY</span></div>
+    </div>
+  </div>
+  <!-- ============ SCREEN 5 : WEEKLY SETTLEMENT (TIE) ============ -->
+  <div class="screen" id="s5">
+    <div class="statusbar"></div>
+    <div class="settle-wrap">
+      <div class="settle-badge">WEEK 2 정산 결과</div>
+
+      <div class="settle-result">
+        <div class="settle-emoji">🤝</div>
+        <h2>무승부예요</h2>
+        <p>둘 다 <b>주 5일 인증</b>을 정확히 채웠어요</p>
+      </div>
+
+      <div class="settle-compare">
+        <div class="settle-side">
+          <div class="nc-av me-av">소</div>
+          <b>나</b>
+          <span>5/7 · 식단 82 · 운동 74</span>
+        </div>
+        <div class="settle-vs">=</div>
+        <div class="settle-side">
+          <div class="nc-av rival-av">🤖</div>
+          <b>류진</b>
+          <span>5/7 · 식단 79 · 운동 80</span>
+        </div>
+      </div>
+
+      <div class="refund-card">
+        <div class="refund-top">
+          <span>승자 없음 · 벌금 전액 환불</span>
+        </div>
+        <div class="refund-amount">+ 10,000원 <small>내 지갑으로 환불 완료</small></div>
+      </div>
+
+      <div class="settle-note">
+        <b>동점일 땐 걸었던 금액을 그대로 돌려받아요.</b> 승부가 갈리지 않으면 벌금은 정산 없이 다음 라운드로 넘어가지 않고 즉시 반환돼요.
+      </div>
+
+      <div class="cta-fixed" style="padding-left:0; padding-right:0;">
+        <button class="btn-primary" onclick="go('s2')">다음 라운드 시작</button>
+      </div>
+    </div>
+  </div>
+  <!-- ============ SCREEN 6 : FORFEIT CONFIRM ============ -->
+  <div class="screen" id="s6">
+    <div class="lock-screen" style="background:radial-gradient(circle at 50% 20%, #FFE3EC 0%, #FFF6EF 60%); justify-content:center; gap:32px;">
+      <div class="forfeit-ico">⚠️</div>
+      <div class="lock-mid mode-paid">
+        <h2>정말 여기서<br>포기할까요?</h2>
+        <p>포기하면 류진이 자동 승리 처리되고,<br>내 벌금 <b style="color:var(--gold);">10,000원만 몰수</b>돼요.<br>류진의 벌금은 류진에게 환불돼요.</p>
+      </div>
+      <div class="lock-mid mode-free" style="display:none;">
+        <h2>정말 여기서<br>포기할까요?</h2>
+        <p>벌금은 없지만, <b style="color:var(--gold);">12일 연승 기록이 초기화</b>돼요.<br>류진은 자동 승리로 기록돼요.</p>
+      </div>
+      <div class="forfeit-detail mode-paid">
+        <div class="fd-row"><span>내 벌금 10,000원</span><b>서버 유지보수비로 몰수</b></div>
+        <div class="fd-row"><span>류진의 벌금 10,000원</span><b>류진에게 환불</b></div>
+        <div class="fd-row highlight"><span>내가 돌려받는 돈</span><b>0원</b></div>
+      </div>
+      <div class="forfeit-detail mode-free" style="display:none;">
+        <div class="fd-row"><span>잃는 돈</span><b>없음 (무료 대결)</b></div>
+        <div class="fd-row"><span>연승 기록</span><b>0일로 초기화</b></div>
+        <div class="fd-row highlight"><span>티어</span><b>한 단계 강등</b></div>
+      </div>
+      <div class="forfeit-actions">
+        <button class="btn-primary" style="background:var(--panel2); color:var(--text); border:1px solid var(--line);" onclick="go('s4')">계속 대결할게요</button>
+        <button class="btn-ghost" style="color:var(--me); border-color:rgba(255,143,171,0.4);" onclick="go('s7')">그래도 포기할게요</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 7 : FORFEIT RESULT ============ -->
+  <div class="screen" id="s7">
+    <div class="statusbar"></div>
+    <div class="settle-wrap">
+      <div class="settle-badge">대결 종료</div>
+      <div class="settle-result">
+        <div class="settle-emoji">🏳️</div>
+        <h2>포기로 대결이 끝났어요</h2>
+        <p>류진의 <b>자동 승리</b>로 기록됐어요</p>
+      </div>
+
+      <div class="refund-card mode-paid" style="background:linear-gradient(135deg, #FFF3D6, var(--panel)); border-color:rgba(255,197,61,0.35);">
+        <div class="refund-top"><span>내 벌금 10,000원은</span></div>
+        <div class="refund-amount" style="color:var(--gold);">서버 유지보수비로 몰수<small>류진은 자기 벌금 10,000원을 그대로 돌려받아요</small></div>
+      </div>
+      <div class="refund-card mode-free" style="display:none; background:linear-gradient(135deg, #F3EFFA, var(--panel)); border-color:rgba(139,147,167,0.3);">
+        <div class="refund-top"><span>무료 대결이라 금전적 손해는 없어요</span></div>
+        <div class="refund-amount" style="color:var(--muted); font-size:16px;">연승 기록 초기화 · 티어 1단계 강등</div>
+      </div>
+
+      <div class="settle-note mode-paid">
+        <b>포기한 사람만 손해를 봐요.</b> 포기하지 않은 상대는 상금을 얻는 게 아니라, 자기가 걸었던 벌금을 그대로 돌려받을 뿐이에요. 도망친 대가는 오직 포기한 쪽이 치러요.
+      </div>
+      <div class="settle-note mode-free" style="display:none;">
+        <b>무료 대결도 포기가 공짜는 아니에요.</b> 돈은 안 잃지만 기록과 티어는 그대로 깎여요. 진지하게 붙고 싶다면 유료 대결로 넘어가보세요.
+      </div>
+
+      <div class="cta-fixed" style="padding-left:0; padding-right:0;">
+        <button class="btn-primary" onclick="go('s2')">새 대결 시작하기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="protonav">
+  <button class="on" onclick="go('s0')" data-s="s0"></button>
+  <button onclick="go('s1')" data-s="s1"></button>
+  <button onclick="go('s2')" data-s="s2"></button>
+  <button onclick="go('s3')" data-s="s3"></button>
+  <button onclick="go('s3b')" data-s="s3b"></button>
+  <button onclick="go('s3c')" data-s="s3c"></button>
+  <button onclick="go('s4')" data-s="s4"></button>
+  <button onclick="go('s5')" data-s="s5"></button>
+  <button onclick="go('s6')" data-s="s6"></button>
+  <button onclick="go('s7')" data-s="s7"></button>
+</div>
+
+<script>
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.protonav button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.s===id);
+  });
+  document.getElementById(id).scrollTop = 0;
+}
+function setMode(mode, el){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.mode-paid').forEach(e=>{ e.style.display = mode==='paid' ? '' : 'none'; });
+  document.querySelectorAll('.mode-free').forEach(e=>{ e.style.display = mode==='free' ? '' : 'none'; });
+}
+setMode('paid', document.querySelector('.mode-tab.active'));
+function selectOpt(el){
+  document.querySelectorAll('.match-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const core = document.getElementById('matchCore');
+  const title = document.getElementById('matchTitle');
+  const desc = document.getElementById('matchDesc');
+  if(el.classList.contains('ai')){
+    core.textContent = '🤖';
+    title.textContent = "AI 라이벌 '류진' 배정 완료";
+    desc.textContent = '기초 페이스: 주 5일 인증 · 지금 바로 시작할 수 있어요';
+  } else {
+    core.textContent = '🙋';
+    title.textContent = "실제 유저 '민지' 매칭 완료";
+    desc.textContent = '키 163~167cm · 감량 목표 · 나와 같은 조건의 상대예요';
+  }
+}
+document.querySelectorAll('.meal-count-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('.meal-count-opt').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+    const count = el.dataset.meals;
+    document.querySelectorAll('.meal-slots').forEach(list=>{
+      list.style.display = list.dataset.count === count ? 'flex' : 'none';
+    });
+  });
+});
+document.querySelectorAll('.goal-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('.goal-opt').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+  });
+});
+function selectPass(el, type){
+  document.querySelectorAll('.pass-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+
+</body>
+</html>
