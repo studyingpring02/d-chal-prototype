@@ -657,6 +657,101 @@ body{
 .navitem span{ font-size:10px; color:var(--faint); font-weight:700; }
 .navitem.on span{ color:var(--gold); }
 
+/* ============ D-CHAL PLUS / SUBSCRIPTION ============ */
+.plus-wrap{ padding:20px 20px 40px; }
+.plus-hero{
+  position:relative; overflow:hidden; text-align:center; padding:24px 18px 22px; margin-bottom:16px;
+  border:1px solid rgba(255,143,171,.25); border-radius:24px;
+  background:linear-gradient(145deg, #FFE4EC 0%, #FFF7EF 50%, #E6F7F1 100%);
+}
+.plus-hero::after{
+  content:""; position:absolute; width:130px; height:130px; right:-54px; top:-54px;
+  border-radius:50%; background:rgba(255,200,87,.22);
+}
+.plus-kicker{
+  display:inline-flex; align-items:center; gap:6px; padding:5px 11px; margin-bottom:10px;
+  border-radius:100px; background:#fff; color:var(--me); font-size:10.5px; font-weight:900;
+  letter-spacing:.08em; box-shadow:0 4px 14px rgba(91,74,77,.08);
+}
+.plus-hero h2{ font-size:25px; font-weight:900; margin-bottom:7px; }
+.plus-hero h2 span{ color:var(--me); }
+.plus-hero p{ color:var(--muted); font-size:12px; line-height:1.55; }
+.launch-banner{
+  display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:14px;
+  border-radius:16px; color:#725927; background:linear-gradient(135deg,#FFF4CD,#FFF9E9);
+  border:1px solid rgba(255,200,87,.45);
+}
+.launch-icon{
+  width:42px; height:42px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  border-radius:14px; background:#fff; font-size:21px;
+}
+.launch-copy{ min-width:0; }
+.launch-copy b{ display:block; font-size:13px; margin-bottom:3px; }
+.launch-copy span{ display:block; font-size:10.5px; line-height:1.45; opacity:.78; }
+.plan-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:17px; }
+.plan-option{
+  position:relative; display:flex; align-items:center; gap:12px; padding:15px 14px;
+  border:2px solid var(--line); border-radius:17px; background:var(--panel); cursor:pointer;
+  transition:border-color .15s, box-shadow .15s, transform .15s;
+}
+.plan-option:active{ transform:scale(.99); }
+.plan-option.selected{
+  border-color:var(--me); box-shadow:0 7px 22px rgba(255,143,171,.18);
+  background:linear-gradient(135deg,#fff,#FFF8FA);
+}
+.plan-radio{
+  width:20px; height:20px; flex:0 0 auto; border:2px solid var(--line); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+.plan-option.selected .plan-radio{ border-color:var(--me); }
+.plan-option.selected .plan-radio::after{ content:""; width:10px; height:10px; border-radius:50%; background:var(--me); }
+.plan-copy{ flex:1; }
+.plan-name{ display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:850; margin-bottom:4px; }
+.plan-badge{
+  padding:3px 7px; border-radius:100px; background:var(--me); color:#fff;
+  font-size:9px; font-weight:850;
+}
+.plan-detail{ color:var(--muted); font-size:10.5px; }
+.plan-price{ text-align:right; }
+.plan-price b{ display:block; font-size:17px; color:var(--text); }
+.plan-price span{ color:var(--muted); font-size:9.5px; }
+.plus-feature-card{
+  padding:15px; margin-bottom:16px; border:1px solid var(--line); border-radius:17px; background:var(--panel);
+}
+.plus-feature-card h3{ font-size:13px; margin-bottom:11px; }
+.plus-features{ display:grid; grid-template-columns:1fr 1fr; gap:9px 8px; list-style:none; }
+.plus-features li{ position:relative; padding-left:17px; color:var(--muted); font-size:10.5px; line-height:1.4; }
+.plus-features li::before{ content:"✓"; position:absolute; left:0; color:var(--rival); font-weight:900; }
+.coupon-card{
+  padding:15px; margin-bottom:14px; border:1px solid var(--line); border-radius:17px; background:var(--panel);
+}
+.coupon-label{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+.coupon-label b{ font-size:12.5px; }
+.coupon-label span{ color:var(--me); font-size:9.5px; font-weight:800; }
+.coupon-row{ display:flex; gap:8px; }
+.coupon-input{
+  min-width:0; flex:1; height:43px; padding:0 13px; border:1.5px solid var(--line); border-radius:12px;
+  color:var(--text); background:#FFFBF8; font:700 13px 'Pretendard',sans-serif; text-transform:uppercase;
+  outline:none;
+}
+.coupon-input:focus{ border-color:var(--me); box-shadow:0 0 0 3px rgba(255,143,171,.1); }
+.coupon-btn{
+  height:43px; padding:0 15px; border:0; border-radius:12px; background:var(--text); color:#fff;
+  font:800 11px 'Pretendard',sans-serif; cursor:pointer;
+}
+.coupon-message{ min-height:17px; padding-top:7px; color:var(--muted); font-size:10.5px; line-height:1.45; }
+.coupon-message.success{ color:#42A68B; font-weight:750; }
+.coupon-message.error{ color:#E85585; font-weight:750; }
+.subscription-cta{ margin-bottom:9px; }
+.subscription-note{ color:var(--faint); font-size:9.5px; line-height:1.55; text-align:center; padding:0 8px; }
+.subscription-status{
+  display:none; padding:14px; margin-bottom:14px; border-radius:16px; text-align:center;
+  background:#EAF8F3; border:1px solid rgba(110,201,176,.35);
+}
+.subscription-status.show{ display:block; }
+.subscription-status b{ display:block; color:#3D9D83; font-size:13px; margin-bottom:3px; }
+.subscription-status span{ color:var(--muted); font-size:10.5px; }
+
 /* 배포용 캐릭터 이미지 */
 .ft-av, .level-char-wrap, .fighter .av{ overflow:hidden; }
 .ft-av-img, .level-char-img, .av-img{
@@ -712,7 +807,7 @@ body{
 
         <div class="start-features">
           <div class="sf-item"><span>🔒</span>못 넘기는 강제 인증</div>
-          <div class="sf-item"><span>💰</span>포인트 충전 후 참가 · 실패 시 1,000P 차감</div>
+          <div class="sf-item"><span>💎</span>무료 참여 · 미완주 시 1,000P 차감</div>
           <div class="sf-item"><span>🥊</span>나와 비슷한 상대 매칭</div>
         </div>
       </div>
@@ -840,7 +935,7 @@ body{
       <div class="charge-banner">
         <span class="cb-ico">💎</span>
         <div class="cb-txt">
-          <b>포인트 충전 후 참가하세요</b>
+          <b>기본 포인트로 바로 참가하세요</b>
           <p>7일 완주에 실패할 때마다 1,000P가 차감돼요. 완주하면 차감 없이 그대로 유지돼요.</p>
         </div>
       </div>
@@ -879,7 +974,7 @@ body{
         <div class="l">보유 포인트</div>
         <div class="r">32,000P</div>
       </div>
-      <p class="point-note mode-paid">완주 실패 시 1주마다 1,000P씩 차감돼요 · 포인트는 기프티콘으로 교환 가능</p>
+      <p class="point-note mode-paid">포인트는 완주와 연승으로 모으는 비현금 보상이며 구매하거나 현금으로 바꿀 수 없어요.</p>
 
       <div class="cta-fixed" style="padding-left:0; padding-right:0;">
         <button class="btn-primary" onclick="proceedToDuel()">대결 시작하기</button>
@@ -1268,92 +1363,77 @@ body{
     </div>
   </div>
 
-  <!-- ============ SCREEN 8 : POINT WALLET / CHARGE & GIFTICON EXCHANGE ============ -->
+  <!-- ============ SCREEN 8 : D-CHAL PLUS SUBSCRIPTION ============ -->
   <div class="screen" id="s8">
     <div class="statusbar"></div>
-    <div class="wallet-wrap">
-      <div class="wallet-top">
-        <div class="wallet-label">포인트 잔액</div>
-        <div class="wallet-balance">32,000<span>P</span></div>
-        <div class="wallet-sub">완주 실패 시 1주마다 1,000P씩 차감돼요</div>
+    <div class="plus-wrap">
+      <div class="plus-hero">
+        <div class="plus-kicker">🌱 D-CHAL PLUS</div>
+        <h2>더 오래 가는<br><span>나만의 대결 루틴</span></h2>
+        <p>핵심 대결은 무료로 즐기고,<br>맞춤 설정과 성장 기록은 Plus로 넓혀보세요.</p>
       </div>
 
-      <div class="pay-card">
-        <div class="pay-card-top">
-          <span>충전 수단</span>
-          <span class="pay-edit">변경</span>
-        </div>
-        <div class="pay-method">
-          <div class="pm-ico">💳</div>
-          <div class="pm-info"><b>신한카드 ****1234</b><span>1P = 1원 · 결제 즉시 포인트로 충전돼요</span></div>
+      <div class="launch-banner">
+        <div class="launch-icon">🎁</div>
+        <div class="launch-copy">
+          <b>가입자 10,000명 전까지 한 달 무료</b>
+          <span>쿠폰 코드 <strong>D-CHAL</strong>을 입력하면 Plus 1개월을 무료로 시작할 수 있어요.</span>
         </div>
       </div>
 
-      <button class="btn-primary" style="margin-bottom:10px;" onclick="go('s2')">포인트 충전하고 대결 참가하기</button>
-      <button class="btn-equip" style="margin-top:0; margin-bottom:22px;" onclick="go('s8g')">포인트로 기프티콘 교환하기</button>
-
-      <div class="section-title">💎 포인트 내역</div>
-      <div class="wallet-history">
-        <div class="wh-row">
-          <div class="wh-icon fail">✕</div>
-          <div class="wh-info"><b>Week 3 완주 실패 · 차감</b><span>7월 12일</span></div>
-          <div class="wh-amt">-1,000P</div>
+      <div class="section-title">이용권 선택</div>
+      <div class="plan-list">
+        <div class="plan-option selected" data-plan="monthly" onclick="selectSubscriptionPlan(this)">
+          <div class="plan-radio"></div>
+          <div class="plan-copy">
+            <div class="plan-name">월간 이용권</div>
+            <div class="plan-detail">부담 없이 한 달씩 이용</div>
+          </div>
+          <div class="plan-price"><b>5,900원</b><span>매월 결제</span></div>
         </div>
-        <div class="wh-row">
-          <div class="wh-icon done">✓</div>
-          <div class="wh-info"><b>Week 2 완주 성공 · 차감 없음</b><span>7월 5일</span></div>
-          <div class="wh-amt plus">0P</div>
-        </div>
-        <div class="wh-row">
-          <div class="wh-icon done">✓</div>
-          <div class="wh-info"><b>Week 1 완주 성공 · 차감 없음</b><span>6월 28일</span></div>
-          <div class="wh-amt plus">0P</div>
-        </div>
-        <div class="wh-row">
-          <div class="wh-icon pay">💳</div>
-          <div class="wh-info"><b>포인트 충전</b><span>6월 27일 · 신한카드 ****1234</span></div>
-          <div class="wh-amt plus">+33,000P</div>
+        <div class="plan-option" data-plan="annual" onclick="selectSubscriptionPlan(this)">
+          <div class="plan-radio"></div>
+          <div class="plan-copy">
+            <div class="plan-name">연간 이용권 <span class="plan-badge">31% 할인</span></div>
+            <div class="plan-detail">월 환산 약 4,083원</div>
+          </div>
+          <div class="plan-price"><b>49,000원</b><span>연 1회 결제</span></div>
         </div>
       </div>
 
-      <p class="wallet-note">포인트는 현금으로 출금할 수 없고, 기프티콘 교환에만 사용할 수 있어요</p>
-    </div>
-  </div>
-
-  <!-- ============ SCREEN 8G : GIFTICON EXCHANGE ============ -->
-  <div class="screen" id="s8g">
-    <div class="statusbar"></div>
-    <div class="wallet-wrap">
-      <div class="wallet-top">
-        <div class="wallet-label">포인트 잔액</div>
-        <div class="wallet-balance">32,000<span>P</span></div>
+      <div class="plus-feature-card">
+        <h3>Plus에서 열리는 기능</h3>
+        <ul class="plus-features">
+          <li>맞춤 챌린지 기간</li>
+          <li>최대 3개 동시 대결</li>
+          <li>전체 인증 기록</li>
+          <li>주간·월간 분석</li>
+          <li>프리미엄 캐릭터</li>
+          <li>맞춤 알림 설정</li>
+          <li>친구와 무제한 재대결</li>
+          <li>광고 없이 이용</li>
+        </ul>
       </div>
 
-      <div class="section-title">🎁 기프티콘으로 교환하기</div>
-      <div class="gift-grid">
-        <div class="gift-item">
-          <div class="gift-ico">☕</div>
-          <b>스타벅스 아메리카노</b>
-          <span>4,500P</span>
+      <div class="coupon-card">
+        <div class="coupon-label">
+          <b>쿠폰이 있나요?</b>
+          <span>선착순 10,000명</span>
         </div>
-        <div class="gift-item">
-          <div class="gift-ico">🏪</div>
-          <b>CU 모바일 상품권</b>
-          <span>5,000P</span>
+        <div class="coupon-row">
+          <input id="couponInput" class="coupon-input" type="text" maxlength="20" placeholder="쿠폰 코드 입력" autocomplete="off">
+          <button class="coupon-btn" type="button" onclick="applyLaunchCoupon()">적용</button>
         </div>
-        <div class="gift-item">
-          <div class="gift-ico">🎫</div>
-          <b>컬쳐랜드 문화상품권</b>
-          <span>10,000P</span>
-        </div>
-        <div class="gift-item">
-          <div class="gift-ico">🍗</div>
-          <b>배달의민족 상품권</b>
-          <span>15,000P</span>
-        </div>
+        <div id="couponMessage" class="coupon-message">중복 사용 방지를 위해 본인인증된 휴대폰 번호당 1회만 사용할 수 있어요.</div>
       </div>
 
-      <p class="wallet-note">기프티콘 발급은 제휴 API(기프트쇼비즈 등)를 통해 자동 지급돼요</p>
+      <div id="subscriptionStatus" class="subscription-status">
+        <b>Plus 1개월 무료 이용이 시작됐어요!</b>
+        <span>무료 기간이 끝나기 전에 알림으로 알려드릴게요.</span>
+      </div>
+
+      <button id="subscriptionCta" class="btn-primary subscription-cta" onclick="completeSubscription()">월 5,900원으로 시작하기</button>
+      <p class="subscription-note">무료 기간 종료 후 선택한 이용권이 자동 결제돼요. 결제 전 언제든 해지할 수 있으며, 쿠폰은 계정 및 본인인증된 휴대폰 번호당 1회만 사용할 수 있어요.</p>
     </div>
   </div>
 
@@ -1372,7 +1452,6 @@ body{
   <button onclick="go('s6')" data-s="s6"></button>
   <button onclick="go('s7')" data-s="s7"></button>
   <button onclick="go('s8')" data-s="s8"></button>
-  <button onclick="go('s8g')" data-s="s8g"></button>
 </div>
 
 <script>
@@ -1384,6 +1463,79 @@ function go(id){
   });
   document.getElementById(id).scrollTop = 0;
 }
+
+let selectedSubscriptionPlan = 'monthly';
+let launchCouponApplied = false;
+
+function updateSubscriptionCta(){
+  const cta = document.getElementById('subscriptionCta');
+  if(!cta) return;
+  if(launchCouponApplied){
+    cta.textContent = '1개월 무료로 시작하기';
+    return;
+  }
+  cta.textContent = selectedSubscriptionPlan === 'annual'
+    ? '연 49,000원으로 시작하기'
+    : '월 5,900원으로 시작하기';
+}
+
+function selectSubscriptionPlan(el){
+  document.querySelectorAll('.plan-option').forEach(option => option.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSubscriptionPlan = el.dataset.plan;
+  updateSubscriptionCta();
+}
+
+function setCouponMessage(message, type){
+  const el = document.getElementById('couponMessage');
+  if(!el) return;
+  el.textContent = message;
+  el.className = 'coupon-message' + (type ? ' ' + type : '');
+}
+
+function applyLaunchCoupon(){
+  const input = document.getElementById('couponInput');
+  const code = (input.value || '').trim().toUpperCase();
+
+  if(localStorage.getItem('dchal-launch-coupon-redeemed') === 'true'){
+    launchCouponApplied = false;
+    setCouponMessage('이 계정 또는 본인인증된 휴대폰 번호로 이미 쿠폰을 사용했어요.', 'error');
+    updateSubscriptionCta();
+    return;
+  }
+  if(code !== 'D-CHAL'){
+    launchCouponApplied = false;
+    setCouponMessage('쿠폰 코드를 다시 확인해 주세요.', 'error');
+    updateSubscriptionCta();
+    return;
+  }
+
+  launchCouponApplied = true;
+  input.value = 'D-CHAL';
+  setCouponMessage('쿠폰 적용 완료! 첫 1개월 결제 금액은 0원이에요.', 'success');
+  updateSubscriptionCta();
+}
+
+function completeSubscription(){
+  if(launchCouponApplied){
+    localStorage.setItem('dchal-launch-coupon-redeemed', 'true');
+    localStorage.setItem('dchal-plus-plan', selectedSubscriptionPlan);
+    document.getElementById('subscriptionStatus').classList.add('show');
+    document.getElementById('subscriptionCta').textContent = 'Plus 이용 중';
+    document.getElementById('subscriptionCta').disabled = true;
+    setCouponMessage('D-CHAL 쿠폰이 계정에 등록됐어요.', 'success');
+    return;
+  }
+
+  localStorage.setItem('dchal-plus-plan', selectedSubscriptionPlan);
+  const planName = selectedSubscriptionPlan === 'annual' ? '연간' : '월간';
+  setCouponMessage(planName + ' 이용권이 선택됐어요. 실제 배포 시 결제창으로 연결됩니다.', 'success');
+}
+
+document.getElementById('couponInput')?.addEventListener('keydown', event => {
+  if(event.key === 'Enter') applyLaunchCoupon();
+});
+
 function setMode(mode, el){
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
   if(el) el.classList.add('active');
