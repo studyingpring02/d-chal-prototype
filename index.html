@@ -467,8 +467,10 @@ body{
 .vs-mini .av{ width:44px; height:44px; border-radius:50%; margin:0 auto 6px; }
 .vs-mini .side.me .av{ background:var(--me); }
 .vs-mini .side.rival .av{ background:var(--rival); }
+.vs-mini .av{ overflow:hidden; padding:3px; }
 .vs-mini .side p{ font-size:11px; color:var(--muted); font-weight:700; }
 .vs-mini .vslabel{ font-size:11px; color:var(--faint); font-weight:800; }
+.mini-character{ width:100%; height:100%; object-fit:cover; display:block; border-radius:inherit; }
 .shutter-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; }
 .shutter{
   width:84px; height:84px; border-radius:50%; background:#FFFFFF; border:6px solid var(--panel2);
@@ -506,6 +508,7 @@ body{
 .nc-av{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; }
 .nc-av.me-av{ background:linear-gradient(160deg, var(--me), #E85585); }
 .nc-av.rival-av{ background:linear-gradient(160deg, var(--rival), #3C9C82); font-size:18px; }
+.nc-av{ overflow:hidden; padding:3px; }
 .nc-info{ flex:1; }
 .nc-info b{ font-size:14px; display:block; }
 .nc-info span{ font-size:11.5px; color:var(--muted); }
@@ -952,9 +955,9 @@ body{
         <h2>지금 안 찍으면<br>류진에게 1승을 내줘요</h2>
         <p>스쾃 5개든 물 한잔이든, 지금 하고 있는<br>걸 찍기만 하면 바로 꺼져요</p>
         <div class="vs-mini">
-          <div class="side me"><div class="av my-avatar"></div><p><span class="my-name-inline">나</span> · 4연승</p></div>
+          <div class="side me"><div class="av"><img src="character-level-3.webp" class="mini-character mini-my-avatar" alt="내 캐릭터"></div><p><span class="my-name-inline">나</span> · 4연승</p></div>
           <div class="vslabel">VS</div>
-          <div class="side rival"><div class="av"></div><p>류진 · 3연승</p></div>
+          <div class="side rival"><div class="av"><img src="character-level-3.webp" class="mini-character" alt="류진 캐릭터"></div><p>류진 · 3연승</p></div>
         </div>
       </div>
 
@@ -1010,7 +1013,7 @@ body{
 
       <div class="notify-card mine">
         <div class="nc-top">
-          <div class="nc-av me-av my-avatar">소</div>
+          <div class="nc-av me-av"><img src="character-level-3.webp" class="mini-character mini-my-avatar" alt="내 캐릭터"></div>
           <div class="nc-info">
             <b class="my-name">나</b>
             <span>운동 인증</span>
@@ -1023,7 +1026,7 @@ body{
 
       <div class="notify-card">
         <div class="nc-top">
-          <div class="nc-av rival-av">🤖</div>
+          <div class="nc-av rival-av"><img src="character-level-3.webp" class="mini-character" alt="류진 캐릭터"></div>
           <div class="nc-info">
             <b>류진</b>
             <span>운동 인증</span>
@@ -1182,13 +1185,13 @@ body{
 
       <div class="settle-compare">
         <div class="settle-side">
-          <div class="nc-av me-av my-avatar">소</div>
+          <div class="nc-av me-av"><img src="character-level-3.webp" class="mini-character mini-my-avatar" alt="내 캐릭터"></div>
           <b class="my-name">나</b>
           <span>5/7 · 식단 82 · 운동 74</span>
         </div>
         <div class="settle-vs">=</div>
         <div class="settle-side">
-          <div class="nc-av rival-av">🤖</div>
+          <div class="nc-av rival-av"><img src="character-level-3.webp" class="mini-character" alt="류진 캐릭터"></div>
           <b>류진</b>
           <span>5/7 · 식단 79 · 운동 80</span>
         </div>
@@ -1490,8 +1493,8 @@ function previewLevel(lv, el){
 function equipCharacter(){
   equippedLevel = previewingLevel;
   const src = levelCharFiles[equippedLevel];
-  document.querySelectorAll('.dash-my-avatar-img').forEach(img => img.src = src);
-  document.querySelectorAll('.start-my-avatar-img').forEach(img => img.src = src);
+  document.querySelectorAll('.dash-my-avatar-img, .start-my-avatar-img, .mini-my-avatar')
+    .forEach(img => img.src = src);
   const btn = document.getElementById('equipBtn');
   btn.textContent = '지금 사용 중인 캐릭터예요';
   btn.classList.add('equipped');
@@ -1500,7 +1503,7 @@ function equipCharacter(){
 function applyDchalCharacterArt(){
   const currentCharacter = levelCharFiles[3];
   document.getElementById('levelCharImg').src = currentCharacter;
-  document.querySelectorAll('.start-my-avatar-img, .dash-my-avatar-img')
+  document.querySelectorAll('.start-my-avatar-img, .dash-my-avatar-img, .mini-my-avatar')
     .forEach(img => img.src = currentCharacter);
 
   const startRival = document.querySelector('.fighter-tile.rival .ft-av-img');
