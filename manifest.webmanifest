@@ -1,0 +1,25 @@
+{
+  "name": "D-CHAL — 1:1 다이어트 대결",
+  "short_name": "D-CHAL",
+  "description": "매일 인증하고 캐릭터를 키우는 1:1 다이어트 대결",
+  "lang": "ko-KR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF6EF",
+  "theme_color": "#FF8FAB",
+  "icons": [
+    {
+      "src": "assets/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
