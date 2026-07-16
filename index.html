@@ -742,6 +742,32 @@ body{
 .coupon-message{ min-height:17px; padding-top:7px; color:var(--muted); font-size:10.5px; line-height:1.45; }
 .coupon-message.success{ color:#42A68B; font-weight:750; }
 .coupon-message.error{ color:#E85585; font-weight:750; }
+.phone-auth-card{
+  padding:15px; margin-bottom:14px; border:1px solid rgba(110,201,176,.4);
+  border-radius:17px; background:linear-gradient(145deg,#FFFFFF,#F4FCF9);
+}
+.phone-auth-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px; }
+.phone-auth-head b{ font-size:12.5px; }
+.phone-auth-head span{
+  padding:4px 7px; border-radius:100px; color:#3D9D83; background:#EAF8F3;
+  font-size:9px; font-weight:850;
+}
+.phone-auth-help{ margin-bottom:10px; color:var(--muted); font-size:10px; line-height:1.5; }
+.auth-input{ text-transform:none; }
+.otp-step{ margin-top:8px; }
+.auth-account{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:11px 12px; border-radius:13px; background:#EAF8F3;
+}
+.auth-account-copy{ min-width:0; }
+.auth-account-copy b{ display:block; color:#328D76; font-size:11.5px; margin-bottom:2px; }
+.auth-account-copy span{ color:var(--muted); font-size:10px; }
+.auth-signout{
+  flex:0 0 auto; padding:7px 9px; border:1px solid rgba(110,201,176,.55); border-radius:9px;
+  background:#fff; color:#328D76; font:800 9.5px 'Pretendard',sans-serif; cursor:pointer;
+}
+.coupon-btn:disabled, .coupon-input:disabled{ opacity:.55; cursor:not-allowed; }
+.is-hidden{ display:none !important; }
 .subscription-cta{ margin-bottom:9px; }
 .subscription-note{ color:var(--faint); font-size:9.5px; line-height:1.55; text-align:center; padding:0 8px; }
 .subscription-status{
@@ -1415,6 +1441,34 @@ body{
         </ul>
       </div>
 
+      <div class="phone-auth-card">
+        <div class="phone-auth-head">
+          <b>휴대폰 번호 인증</b>
+          <span>쿠폰 중복 사용 방지</span>
+        </div>
+        <p class="phone-auth-help">쿠폰을 사용하려면 문자로 받은 인증번호를 입력해 주세요. 같은 계정과 휴대폰 번호에서는 한 번만 사용할 수 있어요.</p>
+
+        <div id="authSignedOut">
+          <div class="coupon-row">
+            <input id="phoneInput" class="coupon-input auth-input" type="tel" inputmode="tel" maxlength="20" placeholder="01012345678" autocomplete="tel">
+            <button id="otpSendBtn" class="coupon-btn" type="button" onclick="sendPhoneOtp()">인증번호 받기</button>
+          </div>
+          <div id="otpStep" class="coupon-row otp-step is-hidden">
+            <input id="otpInput" class="coupon-input auth-input" type="text" inputmode="numeric" maxlength="6" placeholder="인증번호 6자리" autocomplete="one-time-code">
+            <button id="otpVerifyBtn" class="coupon-btn" type="button" onclick="verifyPhoneOtp()">인증하기</button>
+          </div>
+        </div>
+
+        <div id="authSignedIn" class="auth-account is-hidden">
+          <div class="auth-account-copy">
+            <b>휴대폰 인증 완료</b>
+            <span id="verifiedPhone">인증된 계정</span>
+          </div>
+          <button class="auth-signout" type="button" onclick="signOutDchal()">로그아웃</button>
+        </div>
+        <div id="phoneAuthMessage" class="coupon-message">먼저 휴대폰 번호를 인증해 주세요.</div>
+      </div>
+
       <div class="coupon-card">
         <div class="coupon-label">
           <b>쿠폰이 있나요?</b>
@@ -1422,7 +1476,7 @@ body{
         </div>
         <div class="coupon-row">
           <input id="couponInput" class="coupon-input" type="text" maxlength="20" placeholder="쿠폰 코드 입력" autocomplete="off">
-          <button class="coupon-btn" type="button" onclick="applyLaunchCoupon()">적용</button>
+          <button id="couponApplyBtn" class="coupon-btn" type="button" onclick="applyLaunchCoupon()">적용</button>
         </div>
         <div id="couponMessage" class="coupon-message">중복 사용 방지를 위해 본인인증된 휴대폰 번호당 1회만 사용할 수 있어요.</div>
       </div>
@@ -1433,7 +1487,7 @@ body{
       </div>
 
       <button id="subscriptionCta" class="btn-primary subscription-cta" onclick="completeSubscription()">월 5,900원으로 시작하기</button>
-      <p class="subscription-note">무료 기간 종료 후 선택한 이용권이 자동 결제돼요. 결제 전 언제든 해지할 수 있으며, 쿠폰은 계정 및 본인인증된 휴대폰 번호당 1회만 사용할 수 있어요.</p>
+      <p class="subscription-note">현재 쿠폰 무료 이용은 결제수단 없이 시작되며 기간 종료 후 자동 결제되지 않아요. 쿠폰은 계정 및 인증된 휴대폰 번호당 1회만 사용할 수 있어요.</p>
     </div>
   </div>
 
@@ -1454,6 +1508,8 @@ body{
   <button onclick="go('s8')" data-s="s8"></button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script>
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1466,12 +1522,15 @@ function go(id){
 
 let selectedSubscriptionPlan = 'monthly';
 let launchCouponApplied = false;
+let dchalSupabase = null;
+let pendingPhone = '';
 
 function updateSubscriptionCta(){
   const cta = document.getElementById('subscriptionCta');
   if(!cta) return;
   if(launchCouponApplied){
-    cta.textContent = '1개월 무료로 시작하기';
+    cta.textContent = 'Plus 이용 중 · 대결로 돌아가기';
+    cta.disabled = false;
     return;
   }
   cta.textContent = selectedSubscriptionPlan === 'annual'
@@ -1493,48 +1552,292 @@ function setCouponMessage(message, type){
   el.className = 'coupon-message' + (type ? ' ' + type : '');
 }
 
-function applyLaunchCoupon(){
+function setAuthMessage(message, type){
+  const el = document.getElementById('phoneAuthMessage');
+  if(!el) return;
+  el.textContent = message;
+  el.className = 'coupon-message' + (type ? ' ' + type : '');
+}
+
+function normalizePhone(value){
+  const compact = String(value || '').replace(/[\s-]/g, '');
+  if(/^\+\d{8,15}$/.test(compact)) return compact;
+  const digits = compact.replace(/\D/g, '');
+  if(/^0\d{9,10}$/.test(digits)) return '+82' + digits.slice(1);
+  if(/^82\d{9,10}$/.test(digits)) return '+' + digits;
+  return '';
+}
+
+function maskPhone(phone){
+  const digits = String(phone || '').replace(/\D/g, '');
+  return digits.length >= 4 ? '•••-••••-' + digits.slice(-4) : '인증된 계정';
+}
+
+function setButtonLoading(id, isLoading, loadingText, normalText){
+  const button = document.getElementById(id);
+  if(!button) return;
+  button.disabled = isLoading;
+  button.textContent = isLoading ? loadingText : normalText;
+}
+
+function readableAuthError(error){
+  const message = String(error?.message || error || '');
+  if(/provider.*disabled|unsupported.*phone/i.test(message)){
+    return 'Supabase에서 휴대폰 로그인을 먼저 켜고 SMS 발송 서비스를 연결해 주세요.';
+  }
+  if(/rate limit|too many/i.test(message)){
+    return '인증 요청이 너무 많아요. 잠시 후 다시 시도해 주세요.';
+  }
+  if(/invalid.*phone|phone.*invalid/i.test(message)){
+    return '휴대폰 번호 형식을 확인해 주세요.';
+  }
+  if(/token.*expired|expired/i.test(message)){
+    return '인증번호가 만료됐어요. 새 인증번호를 받아 주세요.';
+  }
+  if(/invalid.*token|token.*invalid/i.test(message)){
+    return '인증번호가 올바르지 않아요.';
+  }
+  return message || '연결 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
+}
+
+function renderAuthState(user){
+  const signedOut = document.getElementById('authSignedOut');
+  const signedIn = document.getElementById('authSignedIn');
+  if(user){
+    signedOut?.classList.add('is-hidden');
+    signedIn?.classList.remove('is-hidden');
+    const phoneLabel = document.getElementById('verifiedPhone');
+    if(phoneLabel) phoneLabel.textContent = maskPhone(user.phone);
+    setAuthMessage('휴대폰 인증이 완료됐어요. 이제 쿠폰을 사용할 수 있어요.', 'success');
+  }else{
+    signedOut?.classList.remove('is-hidden');
+    signedIn?.classList.add('is-hidden');
+    document.getElementById('otpStep')?.classList.add('is-hidden');
+    pendingPhone = '';
+    setAuthMessage('먼저 휴대폰 번호를 인증해 주세요.');
+    setInactiveSubscription();
+  }
+}
+
+function formatKoreanDate(value){
+  if(!value) return '';
+  const date = new Date(value);
+  if(Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('ko-KR', {
+    year:'numeric', month:'long', day:'numeric'
+  }).format(date);
+}
+
+function setActiveSubscription(benefitEndsAt){
+  launchCouponApplied = true;
+  const input = document.getElementById('couponInput');
+  const applyButton = document.getElementById('couponApplyBtn');
+  if(input){
+    input.value = 'D-CHAL';
+    input.disabled = true;
+  }
+  if(applyButton){
+    applyButton.disabled = true;
+    applyButton.textContent = '적용됨';
+  }
+
+  const status = document.getElementById('subscriptionStatus');
+  status?.classList.add('show');
+  const statusTitle = status?.querySelector('b');
+  const statusDetail = status?.querySelector('span');
+  if(statusTitle) statusTitle.textContent = 'Plus 1개월 무료 이용 중이에요!';
+  if(statusDetail){
+    const endDate = formatKoreanDate(benefitEndsAt);
+    statusDetail.textContent = endDate
+      ? endDate + '까지 Plus 기능을 이용할 수 있어요.'
+      : '무료 기간 동안 Plus 기능을 이용할 수 있어요.';
+  }
+  updateSubscriptionCta();
+}
+
+function setInactiveSubscription(){
+  launchCouponApplied = false;
+  const input = document.getElementById('couponInput');
+  const applyButton = document.getElementById('couponApplyBtn');
+  if(input) input.disabled = false;
+  if(applyButton){
+    applyButton.disabled = false;
+    applyButton.textContent = '적용';
+  }
+  document.getElementById('subscriptionStatus')?.classList.remove('show');
+  updateSubscriptionCta();
+}
+
+async function refreshPlusStatus(){
+  if(!dchalSupabase) return;
+  const { data, error } = await dchalSupabase.rpc('get_my_dchal_plus_status');
+  if(error){
+    if(/get_my_dchal_plus_status/i.test(error.message || '')){
+      setCouponMessage('Supabase SQL 편집기에서 최신 SQL을 한 번 더 실행해 주세요.', 'error');
+    }
+    return;
+  }
+  if(data?.active){
+    setActiveSubscription(data.benefit_ends_at);
+    setCouponMessage('D-CHAL 쿠폰으로 Plus를 이용 중이에요.', 'success');
+  }else{
+    setInactiveSubscription();
+  }
+}
+
+async function sendPhoneOtp(){
+  if(!dchalSupabase){
+    setAuthMessage('Supabase 연결을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', 'error');
+    return;
+  }
+  const phone = normalizePhone(document.getElementById('phoneInput')?.value);
+  if(!phone){
+    setAuthMessage('휴대폰 번호를 01012345678 형식으로 입력해 주세요.', 'error');
+    return;
+  }
+
+  setButtonLoading('otpSendBtn', true, '발송 중…', '인증번호 받기');
+  const { error } = await dchalSupabase.auth.signInWithOtp({
+    phone,
+    options: { shouldCreateUser: true }
+  });
+  setButtonLoading('otpSendBtn', false, '발송 중…', '인증번호 받기');
+
+  if(error){
+    setAuthMessage(readableAuthError(error), 'error');
+    return;
+  }
+  pendingPhone = phone;
+  document.getElementById('otpStep')?.classList.remove('is-hidden');
+  document.getElementById('otpInput')?.focus();
+  setAuthMessage('문자로 받은 인증번호 6자리를 입력해 주세요.', 'success');
+}
+
+async function verifyPhoneOtp(){
+  if(!dchalSupabase || !pendingPhone){
+    setAuthMessage('먼저 인증번호를 받아 주세요.', 'error');
+    return;
+  }
+  const token = String(document.getElementById('otpInput')?.value || '').replace(/\D/g, '');
+  if(!/^\d{6}$/.test(token)){
+    setAuthMessage('문자로 받은 인증번호 6자리를 입력해 주세요.', 'error');
+    return;
+  }
+
+  setButtonLoading('otpVerifyBtn', true, '확인 중…', '인증하기');
+  const { data, error } = await dchalSupabase.auth.verifyOtp({
+    phone: pendingPhone,
+    token,
+    type: 'sms'
+  });
+  setButtonLoading('otpVerifyBtn', false, '확인 중…', '인증하기');
+
+  if(error){
+    setAuthMessage(readableAuthError(error), 'error');
+    return;
+  }
+  renderAuthState(data.user);
+  await refreshPlusStatus();
+}
+
+async function signOutDchal(){
+  if(!dchalSupabase) return;
+  await dchalSupabase.auth.signOut();
+  renderAuthState(null);
+  setCouponMessage('로그아웃됐어요. 쿠폰을 사용하려면 다시 휴대폰 인증을 해 주세요.');
+}
+
+async function applyLaunchCoupon(){
   const input = document.getElementById('couponInput');
   const code = (input.value || '').trim().toUpperCase();
 
-  if(localStorage.getItem('dchal-launch-coupon-redeemed') === 'true'){
-    launchCouponApplied = false;
-    setCouponMessage('이 계정 또는 본인인증된 휴대폰 번호로 이미 쿠폰을 사용했어요.', 'error');
-    updateSubscriptionCta();
+  if(code !== 'D-CHAL'){
+    setCouponMessage('쿠폰 코드를 다시 확인해 주세요.', 'error');
     return;
   }
-  if(code !== 'D-CHAL'){
-    launchCouponApplied = false;
-    setCouponMessage('쿠폰 코드를 다시 확인해 주세요.', 'error');
-    updateSubscriptionCta();
+  if(!dchalSupabase){
+    setCouponMessage('Supabase 연결을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', 'error');
     return;
   }
 
-  launchCouponApplied = true;
-  input.value = 'D-CHAL';
-  setCouponMessage('쿠폰 적용 완료! 첫 1개월 결제 금액은 0원이에요.', 'success');
-  updateSubscriptionCta();
+  const { data: sessionData } = await dchalSupabase.auth.getSession();
+  if(!sessionData.session){
+    setCouponMessage('먼저 위에서 휴대폰 번호를 인증해 주세요.', 'error');
+    document.getElementById('phoneInput')?.focus();
+    return;
+  }
+
+  setButtonLoading('couponApplyBtn', true, '확인 중…', '적용');
+  const { data, error } = await dchalSupabase.rpc('redeem_dchal_coupon', {
+    p_code: code
+  });
+  setButtonLoading('couponApplyBtn', false, '확인 중…', '적용');
+
+  if(error){
+    setCouponMessage(
+      /redeem_dchal_coupon/i.test(error.message || '')
+        ? 'Supabase SQL 편집기에서 최신 SQL을 한 번 더 실행해 주세요.'
+        : readableAuthError(error),
+      'error'
+    );
+    return;
+  }
+  if(!data?.ok){
+    setCouponMessage(data?.message || '쿠폰을 적용할 수 없어요.', 'error');
+    if(data?.reason === 'already_redeemed') await refreshPlusStatus();
+    return;
+  }
+
+  setActiveSubscription(data.benefit_ends_at);
+  setCouponMessage('쿠폰 적용 완료! Plus 1개월 무료 이용이 시작됐어요.', 'success');
 }
 
 function completeSubscription(){
   if(launchCouponApplied){
-    localStorage.setItem('dchal-launch-coupon-redeemed', 'true');
-    localStorage.setItem('dchal-plus-plan', selectedSubscriptionPlan);
-    document.getElementById('subscriptionStatus').classList.add('show');
-    document.getElementById('subscriptionCta').textContent = 'Plus 이용 중';
-    document.getElementById('subscriptionCta').disabled = true;
-    setCouponMessage('D-CHAL 쿠폰이 계정에 등록됐어요.', 'success');
+    go('s4');
     return;
   }
 
-  localStorage.setItem('dchal-plus-plan', selectedSubscriptionPlan);
   const planName = selectedSubscriptionPlan === 'annual' ? '연간' : '월간';
-  setCouponMessage(planName + ' 이용권이 선택됐어요. 실제 배포 시 결제창으로 연결됩니다.', 'success');
+  setCouponMessage(planName + ' 이용권을 선택했어요. 유료 결제 기능은 다음 단계에서 결제사와 연결할 수 있어요.', 'success');
+}
+
+async function initializeSupabaseFeatures(){
+  const config = window.DCHAL_SUPABASE_CONFIG;
+  if(!window.supabase?.createClient || !config?.url || !config?.publishableKey){
+    setAuthMessage('Supabase 연결 설정을 불러오지 못했어요.', 'error');
+    setCouponMessage('연결 설정 파일을 확인해 주세요.', 'error');
+    return;
+  }
+
+  dchalSupabase = window.supabase.createClient(config.url, config.publishableKey);
+  const { data, error } = await dchalSupabase.auth.getSession();
+  if(error){
+    setAuthMessage(readableAuthError(error), 'error');
+    return;
+  }
+  renderAuthState(data.session?.user || null);
+  if(data.session?.user) await refreshPlusStatus();
+
+  dchalSupabase.auth.onAuthStateChange((event, session) => {
+    if(event === 'INITIAL_SESSION') return;
+    window.setTimeout(async () => {
+      renderAuthState(session?.user || null);
+      if(session?.user) await refreshPlusStatus();
+    }, 0);
+  });
 }
 
 document.getElementById('couponInput')?.addEventListener('keydown', event => {
   if(event.key === 'Enter') applyLaunchCoupon();
 });
+document.getElementById('phoneInput')?.addEventListener('keydown', event => {
+  if(event.key === 'Enter') sendPhoneOtp();
+});
+document.getElementById('otpInput')?.addEventListener('keydown', event => {
+  if(event.key === 'Enter') verifyPhoneOtp();
+});
+initializeSupabaseFeatures();
 
 function setMode(mode, el){
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
