@@ -8,6 +8,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="camera-verification.css">
 <title>D-CHAL — 다이어트 대결</title>
 <style>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.css');
@@ -938,14 +939,23 @@ body{
       <div class="strict-box">
         <div class="ico">🔒</div>
         <div class="txt">
-          <b>강제 모드가 켜집니다</b>
-          <p>설정한 시간이 되면 화면이 잠기고, 사진을 찍기 전까지 알람이 계속 울려요. 이번 주 완주에 실패하면 포인트 1,000P가 차감돼요.</p>
+          <b>즉시 인증 알림이 켜집니다</b>
+          <p>설정한 시간이 되면 푸시 알림이 오고, 알림을 누르면 카메라 인증 화면으로 바로 이동해요. 이번 주 완주에 실패하면 포인트 1,000P가 차감돼요.</p>
         </div>
+      </div>
+
+      <div class="alarm-permission-card">
+        <div class="alarm-permission-copy">
+          <b>🔔 인증 알림 허용</b>
+          <p>앱을 닫아도 정해진 인증 시간을 놓치지 않게 알려드려요.</p>
+        </div>
+        <button type="button" id="enablePushBtn" onclick="window.DchalVerification?.enablePushNotifications()">알림 켜기</button>
+        <div id="pushPermissionStatus" class="alarm-permission-status" aria-live="polite"></div>
       </div>
     </div>
 
     <div class="cta-fixed">
-      <button class="btn-primary" onclick="go('s2')">대결 상대 찾기 →</button>
+      <button class="btn-primary" onclick="window.DchalVerification?.saveSchedulesAndContinue()">인증 시간 저장하고 상대 찾기 →</button>
     </div>
   </div>
 
@@ -1063,29 +1073,84 @@ body{
     </div>
   </div>
 
-  <!-- ============ SCREEN 3 : FORCED LOCK ============ -->
+  <!-- ============ SCREEN 3 : LIVE CAMERA VERIFICATION ============ -->
   <div class="screen" id="s3">
-    <div class="lock-screen">
-      <div class="lock-time">
-        <div class="clock">07:00</div>
-        <div class="date">월요일 · 운동 인증 시간</div>
-        <div class="siren-badge"><span>🔔 사진 찍기 전까진 안 꺼져요</span></div>
+    <div class="camera-verify-screen">
+      <div class="camera-top">
+        <div>
+          <div class="camera-eyebrow" id="verificationTypeLabel">🏋️ 운동 인증</div>
+          <h2>지금 인증할 시간이에요</h2>
+        </div>
+        <div class="camera-countdown" id="verificationCountdown">10:00</div>
       </div>
 
-      <div class="lock-mid">
-        <h2>지금 안 찍으면<br>류진에게 1승을 내줘요</h2>
-        <p>스쾃 5개든 물 한잔이든, 지금 하고 있는<br>걸 찍기만 하면 바로 꺼져요</p>
-        <div class="vs-mini">
-          <div class="side me"><div class="av"><img src="character-level-3.webp" class="mini-character mini-my-avatar" alt="내 캐릭터"></div><p><span class="my-name-inline">나</span> · 4연승</p></div>
-          <div class="vslabel">VS</div>
-          <div class="side rival"><div class="av"><img src="character-level-3.webp" class="mini-character" alt="류진 캐릭터"></div><p>류진 · 3연승</p></div>
+      <div class="camera-stage" id="cameraStage">
+        <video id="verificationVideo" playsinline autoplay muted aria-label="실시간 카메라 화면"></video>
+        <img id="verificationPreview" alt="촬영한 인증 사진 미리보기">
+        <canvas id="verificationCanvas" hidden></canvas>
+        <div class="camera-empty" id="cameraEmpty">
+          <img src="character-level-3.webp" alt="" class="camera-empty-character">
+          <b>카메라를 준비할게요</b>
+          <p>아래 버튼을 누르고 카메라 사용을 허용해주세요.</p>
+        </div>
+        <div class="camera-guide" aria-hidden="true"></div>
+        <div class="fresh-code">
+          <span>오늘의 코드</span>
+          <b id="verificationCode">DCHAL</b>
         </div>
       </div>
 
-      <div class="shutter-wrap">
-        <div class="shutter" onclick="go('s4')"></div>
-        <div class="shutter-note">사진 촬영 시 <b>즉시 알람 종료</b></div>
-        <div class="skip-link" onclick="go('s3b')">오늘은 도저히 못 하겠어요</div>
+      <div class="camera-help" id="cameraHelp">
+        운동 중인 모습이나 운동 도구가 프레임 안에 보이게 찍어주세요.
+      </div>
+
+      <div class="camera-actions">
+        <button type="button" class="camera-main-btn" id="startCameraBtn" onclick="window.DchalVerification?.startCamera()">카메라 허용하고 인증하기</button>
+        <button type="button" class="camera-shutter-btn" id="capturePhotoBtn" onclick="window.DchalVerification?.capturePhoto()" hidden aria-label="사진 촬영"></button>
+        <div class="camera-review-actions" id="cameraReviewActions" hidden>
+          <button type="button" class="camera-secondary-btn" onclick="window.DchalVerification?.retakePhoto()">다시 찍기</button>
+          <button type="button" class="camera-main-btn" id="submitPhotoBtn" onclick="window.DchalVerification?.submitPhoto()">AI에게 판정받기</button>
+        </div>
+        <label class="camera-file-fallback" id="cameraFileFallback" hidden>
+          카메라 앱으로 촬영하기
+          <input type="file" id="cameraFileInput" accept="image/*" capture="environment">
+        </label>
+        <div class="camera-status" id="cameraStatus" aria-live="polite"></div>
+        <button type="button" class="camera-pass-link" onclick="go('s3b')">오늘은 도저히 못 하겠어요</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3d : AI RESULT ============ -->
+  <div class="screen" id="s3d">
+    <div class="ai-result-screen">
+      <div class="ai-processing" id="aiProcessing">
+        <div class="ai-orbit">
+          <img src="character-level-3.webp" alt="D-CHAL 캐릭터">
+        </div>
+        <h2>인증 사진을 확인하고 있어요</h2>
+        <p>운동·식단 증거와 오늘의 코드를<br>AI가 안전하게 확인하는 중이에요.</p>
+        <div class="ai-loading-bar"><span></span></div>
+      </div>
+
+      <div class="ai-result-card" id="aiResultCard" hidden>
+        <div class="ai-result-badge" id="aiResultBadge">인증 완료</div>
+        <div class="ai-score-ring">
+          <strong id="aiScore">0</strong><span>점</span>
+        </div>
+        <h2 id="aiResultTitle">오늘도 해냈어요!</h2>
+        <p id="aiResultMessage">인증 결과를 불러왔어요.</p>
+
+        <div class="ai-metrics">
+          <div><span>활동 일치</span><b id="aiActivityScore">0/40</b></div>
+          <div><span>증거 완성도</span><b id="aiEvidenceScore">0/40</b></div>
+          <div><span>실시간 인증</span><b id="aiFreshScore">0/20</b></div>
+        </div>
+
+        <div class="ai-confidence" id="aiConfidence">AI 신뢰도 0%</div>
+        <div class="ai-demo-note" id="aiDemoNote" hidden>현재는 체험 판정입니다. API 설정 후 실제 AI 판정으로 자동 전환됩니다.</div>
+        <button type="button" class="camera-secondary-btn ai-appeal-btn" id="aiAppealBtn" hidden>재심 요청하기</button>
+        <button type="button" class="camera-main-btn" onclick="go('s4')">대결 현황 보기</button>
       </div>
     </div>
   </div>
@@ -1287,7 +1352,7 @@ body{
 
     <div class="bottomnav">
       <div class="navitem on"><div class="dot">⚔️</div><span>대결</span></div>
-      <div class="navitem"><div class="dot">📷</div><span>인증</span></div>
+      <div class="navitem" onclick="go('s3')" style="cursor:pointer;"><div class="dot">📷</div><span>인증</span></div>
       <div class="navitem"><div class="dot">🏆</div><span>랭킹</span></div>
       <div class="navitem" onclick="go('s8')" style="cursor:pointer;"><div class="dot">👤</div><span>MY</span></div>
     </div>
@@ -1499,6 +1564,7 @@ body{
   <button onclick="go('s2')" data-s="s2"></button>
   <button onclick="go('s2b')" data-s="s2b"></button>
   <button onclick="go('s3')" data-s="s3"></button>
+  <button onclick="go('s3d')" data-s="s3d"></button>
   <button onclick="go('s3b')" data-s="s3b"></button>
   <button onclick="go('s3c')" data-s="s3c"></button>
   <button onclick="go('s4')" data-s="s4"></button>
@@ -1518,6 +1584,11 @@ function go(id){
     b.classList.toggle('on', b.dataset.s===id);
   });
   document.getElementById(id).scrollTop = 0;
+  if(id === 's3'){
+    window.DchalVerification?.open();
+  }else{
+    window.DchalVerification?.pauseCamera();
+  }
 }
 
 let selectedSubscriptionPlan = 'monthly';
@@ -1817,13 +1888,19 @@ async function initializeSupabaseFeatures(){
     return;
   }
   renderAuthState(data.session?.user || null);
-  if(data.session?.user) await refreshPlusStatus();
+  if(data.session?.user){
+    await refreshPlusStatus();
+    await window.DchalVerification?.syncPendingSchedules();
+  }
 
   dchalSupabase.auth.onAuthStateChange((event, session) => {
     if(event === 'INITIAL_SESSION') return;
     window.setTimeout(async () => {
       renderAuthState(session?.user || null);
-      if(session?.user) await refreshPlusStatus();
+      if(session?.user){
+        await refreshPlusStatus();
+        await window.DchalVerification?.syncPendingSchedules();
+      }
     }, 0);
   });
 }
@@ -1971,6 +2048,7 @@ function applyDchalCharacterArt(){
 }
 applyDchalCharacterArt();
 </script>
+<script src="camera-verification.js"></script>
 
 </body>
 </html>
