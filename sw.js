@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dchal-camera-ai-v1';
+const CACHE_NAME = 'dchal-camera-ai-v7';
 const APP_SHELL = [
   './',
   './index.html',
