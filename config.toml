@@ -1,0 +1,7 @@
+project_id = "fausmnyyvervjelnvarr"
+
+[functions.score-verification]
+verify_jwt = true
+
+[functions.dispatch-due-verifications]
+verify_jwt = false

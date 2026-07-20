@@ -1,9 +1,9 @@
-const CACHE_NAME = 'dchal-camera-ai-v7';
+const CACHE_NAME = 'dchal-camera-ai-v8';
 const APP_SHELL = [
   './',
   './index.html',
   './camera-verification.css',
-  './camera-verification.js',
+  './camera-verification.js?v=8',
   './manifest.webmanifest',
   './app-icon-192.png',
   './app-icon-512.png',
